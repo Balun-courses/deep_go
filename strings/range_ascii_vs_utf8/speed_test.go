@@ -4,7 +4,9 @@ import (
 	"testing"
 )
 
-func BenchmarkASCII(b *testing.B) {
+// go test -bench=. speed_test.go
+
+func BenchmarkByRangeBytes(b *testing.B) {
 	text := []byte("aaaabbbbccccddddeeeeffff")
 
 	b.ResetTimer()
@@ -14,7 +16,7 @@ func BenchmarkASCII(b *testing.B) {
 	}
 }
 
-func BenchmarkUTF8(b *testing.B) {
+func BenchmarkByRangeStringUTF8(b *testing.B) {
 	text := "aaaabbbbccccddddeeeeffff"
 
 	b.ResetTimer()

@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func accessToElement1() {
 	data := make([]int, 3)
@@ -41,5 +43,4 @@ func makeSlice() {
 }
 
 func main() {
-
 }

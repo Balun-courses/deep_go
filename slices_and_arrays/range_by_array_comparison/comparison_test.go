@@ -2,6 +2,8 @@ package main
 
 import "testing"
 
+// go test -bench=. comparison_test.go
+
 type account struct {
 	balance int
 }

@@ -42,6 +42,13 @@ func emptyArray() {
 	fmt.Println(unsafe.Sizeof(data))
 }
 
+func capArray() {
+	/*
+		var data [10]int
+		_ = cap(data) // -> compilation error
+	*/
+}
+
 func nonConstantLength() {
 	/*
 		length := 100
@@ -63,5 +70,4 @@ func appendToArray() {
 }
 
 func main() {
-	nilArray()
 }

@@ -2,6 +2,8 @@ package main
 
 import "testing"
 
+// go test -bench=. comparison_test.go
+
 func BenchmarkComparison(b *testing.B) {
 	bs := make([]byte, 1<<26)
 	s0 := string(bs)
