@@ -26,4 +26,5 @@ func main() {
 	}
 
 	fmt.Println(woman.Intro())
+	fmt.Println(woman.Person.Intro())
 }

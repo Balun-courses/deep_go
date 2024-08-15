@@ -7,7 +7,7 @@ import (
 
 type data1 struct {
 	aaa bool
-	bbb [987]byte // TOD0
+	bbb [1023]byte
 	ccc bool
 }
 
