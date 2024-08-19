@@ -6,10 +6,15 @@ import (
 )
 
 func main() {
-	var counter int32 = math.MaxInt32
-	counter++
+	var signed int8 = math.MaxInt8
+	signed++
 
-	fmt.Println(counter)
+	var unsigned uint8 = math.MaxUint8
+	unsigned++
 
-	// var counter int32 = math.MaxInt32 + 1 -> compilation error
+	fmt.Println(signed)
+	fmt.Println(unsigned)
+
+	// var signed int8 = math.MaxInt8 + 1     -> compilation error
+	// var unsigned uint8 = math.MaxUint8 + 1 -> compilation error
 }
