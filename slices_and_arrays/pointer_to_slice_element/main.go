@@ -8,7 +8,7 @@ import (
 func printAllocs() {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
-	fmt.Printf("%d KB\n", m.Alloc/1024)
+	fmt.Printf("%d MB\n", m.Alloc/1024/1024)
 }
 
 func FindElement(numbers []int, target int) *int {
@@ -22,14 +22,12 @@ func FindElement(numbers []int, target int) *int {
 }
 
 func main() {
-	printAllocs()
-	var numbers = make([]int, 10*1024*1024)
-	pointer := FindElement(numbers, 0)
 
-	printAllocs()
-	// potentially high memory consumption
+	var numbers = make([]int, 1<<30)
+	pointer := FindElement(numbers, 0)
 	_ = pointer
 
+	printAllocs()
 	runtime.GC()
 	printAllocs()
 

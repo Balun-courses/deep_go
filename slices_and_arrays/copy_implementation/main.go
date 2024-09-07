@@ -14,6 +14,6 @@ func main() {
 	dst := make([]int, 3)
 	copy(dst, src)
 
-	fmt.Println(src)
-	fmt.Println(dst)
+	fmt.Println("src", src)
+	fmt.Println("dst", dst)
 }

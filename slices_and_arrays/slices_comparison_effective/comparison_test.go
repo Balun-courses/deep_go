@@ -1,32 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
 
-// go test -bench=. comparison_test.go
+// go test -bench=. -benchmem comparison_test.go
 
-type client struct {
-	identifier string
-	operations []int
-}
-
-func (c *client) equal(other *client) bool {
-	if c == other {
-		return true
-	}
-
-	if c.identifier != other.identifier {
+func equal(lhs, rhs []int) bool {
+	if len(lhs) != len(rhs) {
 		return false
 	}
 
-	if len(c.operations) != len(other.operations) {
-		return false
-	}
-
-	for i := 0; i < len(c.operations); i++ {
-		if c.operations[i] != other.operations[i] {
+	for i := 0; i < len(lhs); i++ {
+		if lhs[i] != rhs[i] {
 			return false
 		}
 	}
@@ -35,33 +23,28 @@ func (c *client) equal(other *client) bool {
 }
 
 func BenchmarkWithEqualFunction(b *testing.B) {
-	lhs := client{
-		identifier: "xx11yy",
-		operations: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
-	}
-
-	rhs := client{
-		identifier: "xx11yy",
-		operations: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
-	}
+	lhs := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	rhs := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 
 	for i := 0; i < b.N; i++ {
-		_ = lhs.equal(&rhs)
+		_ = equal(lhs, rhs) // slices.Equal(...)
 	}
 }
 
 func BenchmarkWithReflect(b *testing.B) {
-	lhs := client{
-		identifier: "xx11yy",
-		operations: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
-	}
-
-	rhs := client{
-		identifier: "xx11yy",
-		operations: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
-	}
+	lhs := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	rhs := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 
 	for i := 0; i < b.N; i++ {
 		_ = reflect.DeepEqual(lhs, rhs)
+	}
+}
+
+func BenchmarkWithSprint(b *testing.B) {
+	lhs := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	rhs := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+
+	for i := 0; i < b.N; i++ {
+		_ = fmt.Sprint(lhs) == fmt.Sprint(rhs)
 	}
 }

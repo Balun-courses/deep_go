@@ -15,5 +15,5 @@ func main() {
 	data2 := make([]client, 10)
 
 	data1[1].operations = append(data1[1].operations, 10)
-	fmt.Println(reflect.DeepEqual(data1, data2))
+	fmt.Println("equal:", reflect.DeepEqual(data1, data2))
 }

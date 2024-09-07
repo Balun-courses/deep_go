@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"unsafe"
 )
 
 func main() {
@@ -11,7 +10,6 @@ func main() {
 
 	slice[0] = 10
 
-	fmt.Println(array, len(array), cap(array), unsafe.Sizeof(array))
-
-	// _ = (*[4]int)(slice) -> panic
+	fmt.Println("slice = ", slice, len(slice), cap(slice))
+	fmt.Println("array =", array, len(array), cap(array))
 }

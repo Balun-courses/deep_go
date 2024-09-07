@@ -11,5 +11,5 @@ func main() {
 
 	// data1 == data2   ->   compilation error
 
-	fmt.Println(reflect.DeepEqual(data1, data2))
+	fmt.Println("equal:", reflect.DeepEqual(data1, data2))
 }

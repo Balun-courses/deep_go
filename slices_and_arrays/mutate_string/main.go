@@ -7,10 +7,10 @@ import (
 
 func main() {
 	data := []byte("Hello world")
-	strData := *(*string)(unsafe.Pointer(&data))
+	pointer := (*byte)(unsafe.SliceData(data))
+	str := unsafe.String(pointer, len(data))
 
-	fmt.Println(strData)
-	data[0] = 'h'
-	fmt.Println(strData)
-
+	fmt.Println("initial: ", str)
+	data[0] = '#'
+	fmt.Println("modified:", str)
 }

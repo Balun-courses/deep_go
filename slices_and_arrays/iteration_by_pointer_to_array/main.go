@@ -5,9 +5,6 @@ import "fmt"
 func main() {
 	var array *[4]int // = nil
 
-	// _ = array[0] -> panic
-	// array[0] = 1 -> panic
-
 	fmt.Println("length =", len(array))
 	fmt.Println("capacity =", cap(array))
 

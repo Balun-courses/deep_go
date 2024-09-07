@@ -10,7 +10,7 @@ func handleOperations(id string) {
 }
 
 func getOperations(id string) []float32 {
-	opearations := make([]float32, 0)
+	opearations := []float32{}
 	if id == "" {
 		return opearations
 	}

@@ -1,8 +1,11 @@
 package main
 
-// go build -gcflags='-m=3' . |& grep escape
+// go build -gcflags='-m' . |& grep escape
 
 func main() {
-	slice := make([]byte, 64*1024)
-	_ = slice
+	sliceWithStack := make([]byte, 64<<10)
+	_ = sliceWithStack
+
+	sliceWithHeap := make([]byte, 64<<10+1)
+	_ = sliceWithHeap
 }

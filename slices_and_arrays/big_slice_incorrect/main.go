@@ -1,15 +1,22 @@
 package main
 
 import (
-	"os"
+	"fmt"
+	"runtime"
 )
 
+func printAllocs() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	fmt.Printf("%d MB\n", m.Alloc/1024/1024)
+}
+
 func FindData(filename string) []byte {
-	data, _ := os.ReadFile(filename)
+	data := make([]byte, 1<<30) // for example read from file
 
 	for i := 0; i < len(data)-1; i++ {
-		if data[i] == 0xFF && data[i+1] == 0x00 {
-			return data[i : i+20] // capacity leak
+		if data[i] == 0x00 && data[i+1] == 0x00 {
+			return data[i : i+20]
 		}
 	}
 
@@ -17,6 +24,12 @@ func FindData(filename string) []byte {
 }
 
 func main() {
-	_ = FindData("data.bin")
-	// potentially high memory consumption
+	data := FindData("data.bin")
+	_ = data
+
+	printAllocs()
+	runtime.GC()
+	printAllocs()
+
+	runtime.KeepAlive(data)
 }

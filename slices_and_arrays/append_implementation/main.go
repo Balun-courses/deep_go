@@ -7,7 +7,7 @@ func Append(slice []int, data ...int) []int {
 	newLength := previousLength + len(data)
 
 	if newLength > cap(slice) {
-		// TODO: need to add check for 1024 length
+		// without smart growth for big slices
 		capacity := previousLength * 2
 		if capacity == 0 {
 			capacity = 1

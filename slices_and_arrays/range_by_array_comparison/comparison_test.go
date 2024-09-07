@@ -8,7 +8,7 @@ type account struct {
 	balance int
 }
 
-func BenchmarkFirst(b *testing.B) {
+func BenchmarkWithPointers(b *testing.B) {
 	accounts := [...]*account{
 		{balance: 100},
 		{balance: 200},
@@ -23,7 +23,7 @@ func BenchmarkFirst(b *testing.B) {
 	}
 }
 
-func BenchmarkSecond(b *testing.B) {
+func BenchmarkWithIndices(b *testing.B) {
 	accounts := [...]account{
 		{balance: 100},
 		{balance: 200},
