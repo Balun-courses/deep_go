@@ -39,9 +39,13 @@ func (i *Interface) Perimeter() float64 {
 }
 
 func main() {
+	// static dispatch
 	square := &Square{}
-	iface := NewInterface(square)
+	fmt.Println(square.Area())
+	fmt.Println(square.Perimeter())
 
+	// dynamic dispatch
+	iface := NewInterface(square)
 	fmt.Println(iface.Area())
 	fmt.Println(iface.Perimeter())
 }

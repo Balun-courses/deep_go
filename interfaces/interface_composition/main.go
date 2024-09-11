@@ -7,9 +7,7 @@ type Greater interface {
 }
 
 type Stranger interface {
-	Bye() string
-	Greater
-	Hello() // overloaded
+	Hello()
 }
 
 func main() {

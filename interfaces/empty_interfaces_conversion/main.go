@@ -21,6 +21,6 @@ func main() {
 	var i interface{} = &Book{"Rust 101"}
 	fmt.Println(i) // &{Rust 101}
 
-	i = a
-	fmt.Println(i) // &{Go 101}
+	i = 100
+	fmt.Println(i) // 100
 }

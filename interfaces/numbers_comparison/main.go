@@ -1,9 +1,22 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+)
+
+type Interface interface {
+	String() string
+
+	interface {
+		Clone() Interface
+	}
+
+	io.ReadWriter
+}
 
 func main() {
-	var x any = 3
-	var y any = 3
+	var x interface{} = 3
+	var y interface{} = 3
 	fmt.Println(x == y)
 }
