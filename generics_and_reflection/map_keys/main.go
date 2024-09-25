@@ -9,6 +9,8 @@ func GetKeys(data map[string]int) []string {
 	return keys
 }
 
+// any -> alias for interface{}
+// comparable -> constraint for != and ==
 func GetKeysGeneric[K comparable, V any](data map[K]V) []K {
 	keys := make([]K, 0, len(data))
 	for key := range data {
@@ -20,6 +22,5 @@ func GetKeysGeneric[K comparable, V any](data map[K]V) []K {
 
 func main() {
 	GetKeys(map[string]int{})
-	GetKeysGeneric(map[int]int{})
 	GetKeysGeneric[int, int](map[int]int{})
 }
