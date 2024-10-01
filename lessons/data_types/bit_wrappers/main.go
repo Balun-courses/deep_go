@@ -8,12 +8,10 @@ func SetBit(number, index int) int {
 	return number | (1 << index)
 }
 
-// TODO:
 func InverseBit(number, index int) int {
 	return number ^ (1 << index)
 }
 
-// TODO:
 func ResetBit(number, index int) int {
 	return number & ^(1 << index)
 }
