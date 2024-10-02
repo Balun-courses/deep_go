@@ -1,55 +1,86 @@
 package main
 
 import (
+	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // go test -v homework_test.go
 
-type Deque struct {
+type CircularQueue struct {
+	values []int
 	// need to implement
 }
 
-func NewDeque() Deque {
-	return Deque{}
+func NewCircularQueue(size int) CircularQueue {
+	return CircularQueue{} // need to implement
 }
 
-func (d *Deque) PushFront(value int) {
-	// need to implement
-}
-
-func (d *Deque) PushBack(value int) {
-	// need to implement
-}
-
-func (d *Deque) PopFront() bool {
+func (q *CircularQueue) Push(value int) bool {
 	return false // need to implement
 }
 
-func (d *Deque) PopBack() bool {
+func (q *CircularQueue) Pop() bool {
 	return false // need to implement
 }
 
-func (d *Deque) Front() (int, bool) {
-	return 0, false // need to implement
+func (q *CircularQueue) Front() int {
+	return -1 // need to implement
 }
 
-func (d *Deque) Back() (int, bool) {
-	return 0, false // need to implement
+func (q *CircularQueue) Back() int {
+	return -1 // need to implement
 }
 
-func (d *Deque) At(index int) (int, bool) {
-	return 0, false // need to implement
+func (q *CircularQueue) Empty() bool {
+	return false // need to implement
 }
 
-func (d *Deque) Size() int {
-	return 0 // need to implement
+func (q *CircularQueue) Full() bool {
+	return false // need to implement
 }
 
-func (d *Deque) ForEach(action func(int)) {
-	// need to implement
-}
+func TestCircularQueue(t *testing.T) {
+	const queueSize = 3
+	queue := NewCircularQueue(queueSize)
 
-func TestDeque(t *testing.T) {
+	assert.True(t, queue.Empty())
+	assert.False(t, queue.Full())
 
+	assert.Equal(t, -1, queue.Front())
+	assert.Equal(t, -1, queue.Back())
+	assert.False(t, queue.Pop())
+
+	assert.True(t, queue.Push(1))
+	assert.True(t, queue.Push(2))
+	assert.True(t, queue.Push(3))
+	assert.False(t, queue.Push(4))
+
+	assert.True(t, reflect.DeepEqual([]int{1, 2, 3}, queue.values))
+
+	assert.False(t, queue.Empty())
+	assert.True(t, queue.Full())
+
+	assert.Equal(t, 1, queue.Front())
+	assert.Equal(t, 3, queue.Back())
+
+	assert.True(t, queue.Pop())
+	assert.False(t, queue.Empty())
+	assert.False(t, queue.Full())
+	assert.True(t, queue.Push(4))
+
+	assert.True(t, reflect.DeepEqual([]int{4, 2, 3}, queue.values))
+
+	assert.Equal(t, 2, queue.Front())
+	assert.Equal(t, 4, queue.Back())
+
+	assert.True(t, queue.Pop())
+	assert.True(t, queue.Pop())
+	assert.True(t, queue.Pop())
+	assert.False(t, queue.Pop())
+
+	assert.True(t, queue.Empty())
+	assert.False(t, queue.Full())
 }
