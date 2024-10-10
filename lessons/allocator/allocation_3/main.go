@@ -1,8 +1,9 @@
 package main
 
-// go build -gcflags '-m'
+// -l = disable inlining
+// -m = print optimization decisions
+// go build -gcflags '-l -m'
 
-//go:noinline
 func getResult(number *int) int {
 	result := *number + 200
 	return result

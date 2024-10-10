@@ -25,6 +25,7 @@ func (a *LinearAllocator) Allocate(size int) (unsafe.Pointer, error) {
 	newLength := previousLength + size
 
 	if newLength > cap(a.data) {
+		// can increase capacity
 		return nil, errors.New("not enough memory")
 	}
 
@@ -55,16 +56,19 @@ func main() {
 		// handling...
 	}
 
-	pointer, err := allocator.Allocate(4)
-	if err != nil {
-		// handling...
-	}
+	defer allocator.Free()
 
-	*(*int32)(pointer) = 100   // 1 way
-	store[int32](pointer, 100) // 2 way
+	pointer1, _ := allocator.Allocate(2)
+	pointer2, _ := allocator.Allocate(4)
 
-	value := *(*int32)(pointer)  // 1 way
-	value = load[int32](pointer) // 2 way
+	store[int16](pointer1, 100)
+	store[int32](pointer2, 200)
 
-	fmt.Println(value)
+	value1 := load[int16](pointer1)
+	value2 := load[int32](pointer2)
+	fmt.Println("value1:", value1)
+	fmt.Println("value2:", value2)
+
+	fmt.Println("address1:", pointer1)
+	fmt.Println("address2:", pointer2)
 }

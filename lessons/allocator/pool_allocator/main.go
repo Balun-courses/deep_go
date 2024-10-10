@@ -19,7 +19,7 @@ func NewPoolAllocator(capacity int, objectSize int) (PoolAllocator, error) {
 
 	allocator := PoolAllocator{
 		objectPool:  make([]byte, capacity),
-		freeObjects: make(map[unsafe.Pointer]struct{}),
+		freeObjects: make(map[unsafe.Pointer]struct{}, capacity/objectSize),
 		objectSize:  objectSize,
 	}
 
@@ -29,6 +29,7 @@ func NewPoolAllocator(capacity int, objectSize int) (PoolAllocator, error) {
 
 func (a *PoolAllocator) Allocate() (unsafe.Pointer, error) {
 	if len(a.freeObjects) == 0 {
+		// can increase capacity
 		return nil, errors.New("not enough memory")
 	}
 
@@ -46,6 +47,7 @@ func (a *PoolAllocator) Deallocate(pointer unsafe.Pointer) error {
 		return errors.New("incorrect pointer")
 	}
 
+	// potentionally incorrect pointer
 	a.freeObjects[pointer] = struct{}{}
 	return nil
 }
@@ -76,16 +78,22 @@ func main() {
 		// handling...
 	}
 
-	pointer, err := allocator.Allocate()
-	if err != nil {
-		// handling...
-	}
+	defer allocator.Free()
 
-	*(*int32)(pointer) = 100   // 1 way
-	store[int32](pointer, 100) // 2 way
+	pointer1, _ := allocator.Allocate()
+	pointer2, _ := allocator.Allocate()
 
-	value := *(*int32)(pointer)  // 1 way
-	value = load[int32](pointer) // 2 way
+	store[int32](pointer1, 100)
+	store[int32](pointer2, 200)
 
-	fmt.Println(value)
+	value1 := load[int32](pointer1)
+	value2 := load[int32](pointer2)
+	fmt.Println("value1:", value1)
+	fmt.Println("value2:", value2)
+
+	fmt.Println("address1:", pointer1)
+	fmt.Println("address2:", pointer2)
+
+	allocator.Deallocate(pointer1)
+	allocator.Deallocate(pointer2)
 }

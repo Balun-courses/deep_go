@@ -41,8 +41,3 @@ func BenchmarkSliceWithReturn(b *testing.B) {
 		_, _ = reader.Read(bufferSize)
 	}
 }
-
-func main() {
-	reader := ReaderWithSliceReturn{}
-	_, _ = reader.Read(bufferSize)
-}
