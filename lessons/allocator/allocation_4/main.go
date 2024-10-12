@@ -8,6 +8,7 @@ import "fmt"
 
 func printValue(v interface{}) {
 	fmt.Println(v)
+	//_, _ = v.(int)
 }
 
 func main() {
