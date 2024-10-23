@@ -12,7 +12,8 @@ func printAllocs() {
 }
 
 func main() {
-	data := make(map[int][128]byte)
+	printAllocs()
+	data := make(map[int][128]byte) // try to use 129
 	printAllocs()
 
 	for i := 0; i < 1_000_000; i++ {

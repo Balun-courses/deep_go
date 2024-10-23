@@ -33,5 +33,4 @@ func deleteNonExistingKey() {
 }
 
 func main() {
-	rangeByNilMap()
 }

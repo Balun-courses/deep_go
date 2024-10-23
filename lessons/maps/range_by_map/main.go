@@ -3,15 +3,11 @@ package main
 import "fmt"
 
 func main() {
-	data := []int{0, 1, 2, 3}
-	lookup := make(map[int]*int, 4)
-
-	for idx, value := range data {
-		lookup[idx] = &value
-		//fmt.Println(uintptr(unsafe.Pointer(&value)))
+	data := map[int]int{1: 1, 2: 2, 3: 3}
+	for _, value := range data {
+		value = 1000
+		_ = value
 	}
 
-	for key, value := range lookup {
-		fmt.Println(key, *value)
-	}
+	fmt.Println(data)
 }
