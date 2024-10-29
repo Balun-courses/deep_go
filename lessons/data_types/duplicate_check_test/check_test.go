@@ -6,44 +6,44 @@ import (
 
 // go test -bench=. check_test.go
 
-func HasDuplicatesFrom1To7WithBits(data []int) int {
+func HasDuplicatesFrom1To7WithBits(data []int) bool {
 	var lookup int8
 	for _, number := range data {
 		if lookup&(1<<number) == 1 {
-			return number
+			return true
 		}
 
 		lookup |= 1 << number
 	}
 
-	return -1
+	return false
 }
 
-func HasDuplicatesFrom1To7WithArray(data []int) int {
+func HasDuplicatesFrom1To7WithArray(data []int) bool {
 	var lookup [8]int8
 	for _, number := range data {
 		if lookup[number] == 1 {
-			return number
+			return true
 		}
 
 		lookup[number] = 1
 	}
 
-	return -1
+	return false
 }
 
-func HasDuplicatesFrom1To7WithHashTable(data []int) int {
-	lookup := make(map[int]struct{}, len(data))
+func HasDuplicatesFrom1To7WithHashTable(data []int) bool {
+	lookup := make(map[int]struct{}, 8)
 	for _, number := range data {
 		_, found := lookup[number]
 		if found {
-			return number
+			return true
 		}
 
 		lookup[number] = struct{}{}
 	}
 
-	return -1
+	return false
 }
 
 func BenchmarkHasDuplicatesFrom1To7WithBits(b *testing.B) {

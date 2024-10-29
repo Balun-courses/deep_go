@@ -9,7 +9,7 @@ package main
 func searchRestaurants(pattern int8, bitmaps []int8) []int {
 	var indexes []int
 	for idx, bitmap := range bitmaps {
-		if bitmap&pattern == 1 {
+		if bitmap^pattern == 0 {
 			indexes = append(indexes, idx)
 		}
 	}

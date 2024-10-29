@@ -11,11 +11,11 @@ func main() {
 	var value1 int32 = 100
 	pointer := &value1
 
-	fmt.Println(*pointer)
-	fmt.Println(pointer)
+	fmt.Println("value:", *pointer)
+	fmt.Println("address:", pointer)
 
 	process(&pointer)
 
-	fmt.Println(*pointer)
-	fmt.Println(pointer)
+	fmt.Println("value", *pointer)
+	fmt.Println("address:", pointer)
 }
