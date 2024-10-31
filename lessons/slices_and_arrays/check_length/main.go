@@ -4,7 +4,7 @@ package main
 
 func handleOperations(id string) {
 	operations := getOperations(id)
-	if len(operations) == 0 {
+	if operations == nil {
 		// handling...
 	}
 }

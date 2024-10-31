@@ -30,7 +30,7 @@ func BenchmarkWithCalculatedLength(b *testing.B) {
 func BenchmarkWithLoopUnwinding(b *testing.B) {
 	data := make([]int, size)
 	for i := 0; i < b.N; i++ {
-		for j := 0; j < len(data)/4; j++ {
+		for j := 0; j < len(data)/4; j += 4 {
 			data[j] = i
 			data[j+1] = i
 			data[j+2] = i
