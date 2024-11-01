@@ -8,10 +8,10 @@ import (
 
 // go test -v homework_test.go
 
-func ToLittleEndian[T uint16 | uint32 | uint64](number T) T {
+func ToBigEndian[T uint16 | uint32 | uint64](number T) T {
 	var result T
 	var mask T = 0xFF
-	for i := unsafe.Sizeof(number); i > 0; i-- {
+	for range unsafe.Sizeof(number) {
 		result <<= (1 << 3)
 		result |= number & mask
 		number >>= (1 << 3)
@@ -48,7 +48,7 @@ func TestSerializationProperties(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			result := ToLittleEndian(test.number)
+			result := ToBigEndian(test.number)
 			assert.Equal(t, test.result, result)
 		})
 	}
