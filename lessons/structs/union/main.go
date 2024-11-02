@@ -5,7 +5,7 @@ import "unsafe"
 // small buffer optimization
 type SBO struct {
 	size  int64
-	union [16]byte // 4B[capacity]4B[pointer]
+	union [16]byte // 8B[capacity]8B[pointer]
 }
 
 func main() {
