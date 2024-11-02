@@ -1,7 +1,6 @@
 package main
 
 type Data struct {
-	value int
 }
 
 func (d Data) Print() {}
