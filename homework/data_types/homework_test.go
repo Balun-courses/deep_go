@@ -9,7 +9,12 @@ import (
 // go test -v homework_test.go
 
 func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+	b1 := number & 0xFF000000 >> 24
+	b2 := number & 0x00FF0000 >> 8
+	b3 := number & 0x0000FF00 << 8
+	b4 := number & 0x000000FF << 24
+
+	return b1 + b2 + b3 + b4
 }
 
 func TestSerializationProperties(t *testing.T) {
