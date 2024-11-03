@@ -2,14 +2,25 @@ package main
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 )
 
 // go test -v homework_test.go
 
-func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+func ToLittleEndian[T uint16 | uint32 | uint64](number T) T {
+	var (
+		result         T
+		mask, byteSize uint8 = 0xff, 1 << 3
+	)
+	ptr := unsafe.Pointer(&number)
+	for range uint8(unsafe.Sizeof(number)) {
+		result <<= byteSize
+		result |= T(*(*uint8)(ptr) & mask)
+		ptr = unsafe.Add(ptr, 1)
+	}
+	return result
 }
 
 func TestSerializationProperties(t *testing.T) {
