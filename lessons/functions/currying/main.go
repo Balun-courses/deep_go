@@ -8,10 +8,10 @@ func multiply(x int) func(y int) int {
 	}
 }
 
-// Карринг функции — это изменение функции от вида func(a,b,c) до вида func(a)(b)(c).
-
 func main() {
-	// каррирование
+	fmt.Println(multiply(10)(15))
+
+	// частичное применение
 	var mult10 = multiply(10)
 	var mult15 = multiply(15)
 
