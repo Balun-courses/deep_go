@@ -30,17 +30,17 @@ func main() {
 	emptyIfacePtr := (*emptyInterface)(ifacePtr)
 
 	hm := (*hmap)(emptyIfacePtr.data)
-	fmt.Println(hm.count, 1<<hm.B)
+	fmt.Println("count:", hm.count, "buckets:", 1<<hm.B)
 
 	for i := 0; i < 500; i++ {
 		data[i] = i * 2
 	}
 
-	fmt.Println(hm.count, 1<<hm.B)
+	fmt.Println("count:", hm.count, "buckets:", 1<<hm.B)
 
 	for key := range data {
 		delete(data, key)
 	}
 
-	fmt.Println(hm.count, 1<<hm.B)
+	fmt.Println("count:", hm.count, "buckets:", 1<<hm.B)
 }
