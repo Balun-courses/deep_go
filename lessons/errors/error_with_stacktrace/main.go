@@ -1,11 +1,19 @@
 package main
 
 import (
-	"errors"
 	"fmt"
+
+	"github.com/pkg/errors"
 )
 
 func main() {
-	err := errors.New("error")
-	fmt.Printf("%+v", err)
+	value, err := DoSomething()
+	if err != nil {
+		fmt.Printf("%+v", err)
+	}
+	fmt.Println(value)
+}
+
+func DoSomething() (string, error) {
+	return "", errors.New("some error explanation here")
 }
