@@ -12,9 +12,8 @@ import (
 
 type CircularQueue struct {
 	values []int
-	// need to implement
-	start int
-	end   int
+	start  int
+	end    int
 }
 
 func NewCircularQueue(size int) CircularQueue {
@@ -25,7 +24,7 @@ func NewCircularQueue(size int) CircularQueue {
 	return CircularQueue{
 		values: make([]int, size),
 		end:    -1,
-	} // need to implement
+	}
 }
 
 func (q *CircularQueue) Push(value int) bool {
@@ -33,7 +32,7 @@ func (q *CircularQueue) Push(value int) bool {
 		return false
 	}
 	q.values[q.start] = value
-	q.start = (q.start + 1) % cap(q.values)
+	q.start = q.Next(q.start)
 	if q.Empty() {
 		q.end = q.start
 	}
@@ -41,10 +40,10 @@ func (q *CircularQueue) Push(value int) bool {
 }
 
 func (q *CircularQueue) Pop() bool {
-	if q.end == -1 {
+	if q.Empty() {
 		return false
 	}
-	q.end = (q.end + 1) % cap(q.values)
+	q.end = q.Next(q.end)
 	if q.Full() {
 		q.end = -1
 	}
@@ -52,19 +51,27 @@ func (q *CircularQueue) Pop() bool {
 }
 
 func (q *CircularQueue) Front() int {
-	if q.end == -1 {
+	if q.Empty() {
 		return -1
 	}
-	v := (q.end - 1 + cap(q.values)) % cap(q.values)
+	v := q.Prev(q.end)
 	return q.values[v]
 }
 
 func (q *CircularQueue) Back() int {
-	if q.end == -1 {
+	if q.Empty() {
 		return -1
 	}
-	v := (q.start - 1 + cap(q.values)) % cap(q.values)
+	v := q.Prev(q.start)
 	return q.values[v]
+}
+
+func (q *CircularQueue) Prev(idx int) int {
+	return (idx - 1 + cap(q.values)) % cap(q.values)
+}
+
+func (q *CircularQueue) Next(idx int) int {
+	return (idx + 1) % cap(q.values)
 }
 
 func (q *CircularQueue) Empty() bool {
