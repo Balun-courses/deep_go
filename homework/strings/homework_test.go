@@ -34,7 +34,7 @@ func (b *COWBuffer) Clone() *COWBuffer {
 }
 
 func (b *COWBuffer) Close() {
-	if b.data == nil || b.refs == nil {
+	if b.refs == nil {
 		return
 	}
 	*b.refs -= 1
