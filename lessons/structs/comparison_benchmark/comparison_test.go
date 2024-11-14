@@ -8,11 +8,11 @@ import (
 
 type Data1 struct {
 	size   int32
-	values [1020]byte
+	values [10 << 20]byte
 }
 
 type Data2 struct {
-	values [1020]byte
+	values [10 << 20]byte
 	size   int32
 }
 

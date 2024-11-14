@@ -7,7 +7,7 @@ type data1 struct {
 }
 
 func (d data1) print() {
-	fmt.Println(d.value)
+	fmt.Println("data1", d.value)
 }
 
 type data2 struct {
@@ -15,7 +15,7 @@ type data2 struct {
 }
 
 func (d *data2) print() {
-	fmt.Println(d.value)
+	fmt.Println("data2", d.value)
 }
 
 func main() {
