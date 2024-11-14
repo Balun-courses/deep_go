@@ -2,6 +2,8 @@ package main
 
 import (
 	"reflect"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"unsafe"
 
@@ -9,29 +11,58 @@ import (
 )
 
 type COWBuffer struct {
-	data []byte
-	refs *int
-	// need to implement
+	data   []byte
+	refs   *int32
+	closed bool
+	mutex  *sync.RWMutex
 }
 
 func NewCOWBuffer(data []byte) COWBuffer {
-	return COWBuffer{} // need to implement
+	return COWBuffer{data, new(int32), false, &sync.RWMutex{}}
 }
 
 func (b *COWBuffer) Clone() COWBuffer {
-	return COWBuffer{} // need to implement
+	b.mutex.RLock()
+	defer b.mutex.RUnlock()
+
+	if b.closed {
+		panic("Cannot clone COW string in closed state")
+	}
+
+	atomic.AddInt32(b.refs, 1)
+	return COWBuffer{b.data, b.refs, false, &sync.RWMutex{}}
 }
 
 func (b *COWBuffer) Close() {
-	// need to implement
+	b.mutex.Lock()
+	defer b.mutex.Unlock()
+
+	b.closed = true
+	*(b.refs)--
 }
 
 func (b *COWBuffer) Update(index int, value byte) bool {
-	return false // need to implement
+	b.mutex.Lock()
+	defer b.mutex.Unlock()
+
+	if index < 0 || index >= len(b.data) {
+		return false
+	}
+
+	if b.closed {
+		panic("Cannot update COW string in closed state")
+	}
+
+	if *b.refs > 1 {
+		b.data = append([]byte(nil), b.data...)
+	}
+
+	b.data[index] = value
+	return true
 }
 
 func (b *COWBuffer) String() string {
-	return "" // need to implement
+	return *(*string)(unsafe.Pointer(&b.data))
 }
 
 func TestCOWBuffer(t *testing.T) {
