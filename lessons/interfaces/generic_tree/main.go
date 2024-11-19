@@ -4,8 +4,8 @@ type BSTItem interface {
 	Less(BSTItem) bool
 }
 
-type BinarySearhTree struct {
+type BSTNode struct {
 	item  BSTItem
-	left  *BinarySearhTree
-	right *BinarySearhTree
+	left  *BSTNode
+	right *BSTNode
 }

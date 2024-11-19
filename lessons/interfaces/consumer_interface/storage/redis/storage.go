@@ -1,6 +1,6 @@
 package redis
 
-import "golang_course/interfaces/consumer_interface/entity"
+import "golang_course/lessons/interfaces/consumer_interface/entity"
 
 type RedisStorage struct{}
 

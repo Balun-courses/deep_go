@@ -1,6 +1,6 @@
 package service
 
-import "golang_course/interfaces/consumer_interface/entity"
+import "golang_course/lessons/interfaces/consumer_interface/entity"
 
 type clientUpdater interface {
 	UpdateClient(entity.Client) error

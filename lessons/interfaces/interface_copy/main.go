@@ -18,9 +18,8 @@ func main() {
 	value = 200
 	fmt.Println(i)
 
-	/*
-		obj := (*eface)(unsafe.Pointer(&i))
-		println("&value:", &value)
-		println("obj.val:", obj.val)
-	*/
+	obj := (*eface)(unsafe.Pointer(&i))
+	println("&value:", &value)
+	println("obj.val:", obj.val)
+
 }
