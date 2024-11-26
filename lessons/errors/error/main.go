@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 )
 
 type error interface {
@@ -24,7 +25,7 @@ func NewDivisionError(message string, lhs, rhs int) DivisionError {
 
 func (e DivisionError) Error() string {
 	if e.errMessage != "" {
-		return e.errMessage + " [" + string(e.firstArgument) + ", " + string(e.secondArgument) + "]"
+		return e.errMessage + " [" + strconv.Itoa(e.firstArgument) + ", " + strconv.Itoa(e.secondArgument) + "]"
 	} else {
 		return ""
 	}
@@ -45,5 +46,6 @@ func main() {
 	y := 0
 
 	value, err := divide(x, y)
-	fmt.Println(value, err)
+	fmt.Println(value)
+	fmt.Println(err)
 }

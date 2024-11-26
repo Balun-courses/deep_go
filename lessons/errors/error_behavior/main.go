@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type ErrorFromAnotherPackage struct{}
 
@@ -23,6 +25,7 @@ func IsFSError(err error) bool {
 
 func getErrorFromAnotherPackage() error {
 	return ErrorFromAnotherPackage{}
+	//return fmt.Errorf("%w", ErrorFromAnotherPackage{})
 }
 
 func main() {

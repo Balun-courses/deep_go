@@ -13,4 +13,5 @@ func main() {
 	fmt.Println(err.Error())
 	fmt.Println(errors.Unwrap(err))
 	fmt.Println(errors.Unwrap(errors.Unwrap(err)))
+	fmt.Println(errors.Unwrap(errors.Unwrap(errors.Unwrap(err))))
 }

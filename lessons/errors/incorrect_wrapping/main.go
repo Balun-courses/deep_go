@@ -13,7 +13,7 @@ func main() {
 	fmt.Println(err.Error())
 	fmt.Println(errors.Unwrap(err))
 
-	err = fmt.Errorf("additional error information: %w and %w", "error")
+	err = fmt.Errorf("additional error information: %w", "error")
 
 	fmt.Println(err.Error())
 	fmt.Println(errors.Unwrap(err))
