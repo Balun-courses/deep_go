@@ -11,8 +11,8 @@ func load[T any](pointer unsafe.Pointer) T {
 }
 
 func main() {
-	var pointer1 unsafe.Pointer
-	var pointer2 unsafe.Pointer
+	var pointer1 unsafe.Pointer // not initialized
+	var pointer2 unsafe.Pointer // not initialized
 
 	store[int16](pointer1, 100)
 	store[int32](pointer2, 200)

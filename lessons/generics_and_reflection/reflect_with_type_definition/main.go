@@ -18,6 +18,6 @@ func main() {
 	var value2 IntDefinition = 7
 	v2 := reflect.ValueOf(value2)
 
-	fmt.Println("type:", v2.Type())
-	fmt.Println("kind:", v2.Kind())
+	fmt.Println("definition type:", v2.Type())
+	fmt.Println("definition kind:", v2.Kind())
 }

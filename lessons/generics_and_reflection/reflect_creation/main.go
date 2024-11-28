@@ -5,8 +5,6 @@ import (
 	"reflect"
 )
 
-// Need to add example with creation
-
 func main() {
 	dataStruct := reflect.StructOf([]reflect.StructField{
 		{Name: "Age", Type: reflect.TypeOf("abc")},

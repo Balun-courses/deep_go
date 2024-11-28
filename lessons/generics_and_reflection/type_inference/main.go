@@ -18,8 +18,6 @@ type Data[T any] struct {
 	Value T
 }
 
-type DataAlias[T any] Data[T]
-
 func main() {
 	// without infence
 	value1 := Create()
@@ -36,7 +34,5 @@ func main() {
 	data1 := Data{}
 	_ = data1
 	data2 := Data{Value: 100}
-	_ = data2
-	data3 := DataAlias{Value: 100}
 	_ = data2
 }

@@ -17,8 +17,10 @@ func (v Vector) Add(factor int) int {
 func main() {
 	vector := Vector{X: 5, Y: 15}
 	vVector := reflect.ValueOf(vector)
+
 	vAdd := vVector.MethodByName("Add")
 	vResults := vAdd.Call([]reflect.Value{reflect.ValueOf(2)})
+
 	fmt.Println(vResults[0].Int())
 
 	negative := func(x int) int {

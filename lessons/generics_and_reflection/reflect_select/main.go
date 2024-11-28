@@ -17,8 +17,8 @@ func main() {
 		{Dir: reflect.SelectRecv, Chan: vch},
 	}
 
-	index, vRecv, sentBeforeClosed := reflect.Select(branches)
-	fmt.Println(index, vRecv, sentBeforeClosed)
+	index, vRecv, recvOk := reflect.Select(branches)
+	fmt.Println(index, vRecv, recvOk)
 
 	vch.Close()
 }
