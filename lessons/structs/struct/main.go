@@ -13,4 +13,12 @@ func main() {
 	// 2 way
 	data2 := Data{x: 10, y: 20}
 	_ = data2
+
+	data3 := &Data{}
+	_ = data3
+
+	/*
+		var data3 Data
+
+	*/
 }

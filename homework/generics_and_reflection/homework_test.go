@@ -6,96 +6,50 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Serialize(object interface{}) string {
-	return "" // need to implement
+// go test -v homework_test.go
+
+type Person struct {
+	Name    string `properties:"name"`
+	Address string `properties:"address,omitempty"`
+	Age     int    `properties:"age"`
+	Married bool   `properties:"married"`
 }
 
-func TestSerializationProperties(t *testing.T) {
+func Serialize(person Person) string {
+	// need to implement
+	return ""
+}
+
+func TestSerialization(t *testing.T) {
 	tests := map[string]struct {
-		object interface{}
+		person Person
 		result string
 	}{
-		"empty object": {
-			object: struct{}{},
-			result: "",
+		"test case with empty fields": {
+			result: "name=\nage=0\nmarried=false",
 		},
-		"object without tags": {
-			object: struct {
-				Count   int
-				Title   string
-				Pointer *int
-			}{},
-			result: "",
-		},
-		"object other tags": {
-			object: struct {
-				Count   int    `json:"count"`
-				Title   string `json:"title"`
-				Pointer *int   `json:"pointer"`
-			}{},
-			result: "",
-		},
-		"object without values": {
-			object: struct {
-				Count   int    `properties:"count"`
-				Title   string `properties:"title"`
-				Pointer *int   `properties:"pointer"`
-			}{},
-			result: `
-				count=
-				title=
-				pointer=
-			`,
-		},
-		"object without values with omitempty": {
-			object: struct {
-				Count   int    `properties:"count,omitempty"`
-				Title   string `properties:"title,omitempty"`
-				Pointer *int   `properties:"pointer,omitempty"`
-			}{},
-			result: "",
-		},
-		"object with values": {
-			object: struct {
-				Count   int    `properties:"count"`
-				Title   string `properties:"title"`
-				Pointer *int   `properties:"pointer"`
-			}{
-				Count:   100,
-				Title:   "title",
-				Pointer: new(int),
+		"test case with fields": {
+			person: Person{
+				Name:    "John Doe",
+				Age:     30,
+				Married: true,
 			},
-			result: `
-				count=100
-				title=title
-				pointer=0
-			`,
+			result: "name=John Doe\nage=30\nmarried=true",
 		},
-		"object with other types": {
-			object: struct {
-				Count   int         `properties:"count"`
-				Title   string      `properties:"title"`
-				Pointer *int        `properties:"pointer"`
-				Slice   []int       `properties:"slice"`
-				Map     map[int]int `properties:"map"`
-			}{
-				Count:   100,
-				Title:   "title",
-				Pointer: new(int),
-				Slice:   []int{1, 2, 3},
-				Map:     map[int]int{1: 1},
+		"test case with omitempty field": {
+			person: Person{
+				Name:    "John Doe",
+				Age:     30,
+				Married: true,
+				Address: "Paris",
 			},
-			result: `
-				count=100
-				title=title
-				pointer=0
-			`,
+			result: "name=John Doe\naddress=Paris\nage=30\nmarried=true",
 		},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			result := Serialize(test.object)
+			result := Serialize(test.person)
 			assert.Equal(t, test.result, result)
 		})
 	}

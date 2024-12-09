@@ -15,9 +15,9 @@ func notify(status string) {
 
 func process() {
 	var status string
-	defer func() {
-		notify(status)
-	}()
+	defer func(s string) {
+		notify(s)
+	}(status)
 
 	// processing..
 	status = StatusError

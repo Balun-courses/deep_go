@@ -13,7 +13,7 @@ type (
 
 func main() {
 	bookCreator := func() Book { return Book{} }
-	gameCreator := func() Book { return Book{} }
+	gameCreator := func() Game { return Game{} }
 
 	book := NewInstance(bookCreator)
 	_ = book

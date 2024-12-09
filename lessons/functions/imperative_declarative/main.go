@@ -17,12 +17,3 @@ func main() {
 	declarative := filterEvenNumbers([]int{1, 2, 3, 4, 5})
 	_ = declarative
 }
-
-
-// compilation error
-func sqr(number int = 10) int {
-	return number * number
-}
-
-sqr()
-sqr(10)

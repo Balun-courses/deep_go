@@ -1,6 +1,6 @@
 package mysql
 
-import "golang_course/interfaces/consumer_interface/entity"
+import "golang_course/lessons/interfaces/consumer_interface/entity"
 
 type MySQLStorage struct{}
 

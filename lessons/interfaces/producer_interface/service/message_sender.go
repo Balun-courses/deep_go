@@ -1,6 +1,6 @@
 package service
 
-import "golang_course/interfaces/producer_interface/storage"
+import "golang_course/lessons/interfaces/producer_interface/storage"
 
 type MessageSender struct {
 	repository storage.ClientStorage

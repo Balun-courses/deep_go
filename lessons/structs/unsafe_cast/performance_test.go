@@ -5,13 +5,6 @@ import (
 	"unsafe"
 )
 
-type (
-	Name = string
-	Age  = int
-)
-
-type Table = map[Name]Age
-
 // go test -bench=. -benchmem performance_test.go
 
 type Int int

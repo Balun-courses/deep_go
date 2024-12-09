@@ -6,7 +6,7 @@ import (
 )
 
 type Data struct {
-	X int  `json:"x"`
+	X int  `json:"x" xml:"name"`
 	Y bool `json:"y,omitempty"`
 }
 

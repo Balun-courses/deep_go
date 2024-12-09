@@ -11,7 +11,9 @@ func getBalance(database *sql.DB, clientId int) (balance float32, err error) {
 	}
 
 	defer func() {
-		err = rows.Close()
+		if err == nil {
+			err = rows.Close()
+		}
 	}()
 
 	// reading...

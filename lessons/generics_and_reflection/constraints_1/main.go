@@ -12,6 +12,14 @@ func Process1[T1 Integer1](value T1) {
 	// ..
 }
 
+func Process11[T2 interface{ int | int16 | int32 | int64 }](value T2) {
+	// ..
+}
+
+func Process12[T2 int | int16 | int32 | int64](value T2) { // interface{} can be omitted
+	// ..
+}
+
 func Process2[T2 Integer2](value T2) {
 	// ..
 }

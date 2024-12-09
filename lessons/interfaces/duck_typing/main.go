@@ -12,15 +12,15 @@ type Duck interface {
 
 type Dog struct{}
 
-func (d *Dog) Talk() string {
+func (d Dog) Talk() string {
 	return "AAAGGGRRR"
 }
 
-func (d *Dog) Walk() {
+func (d Dog) Walk() {
 	fmt.Println("Walking...")
 }
 
-func (d *Dog) Swim() {
+func (d Dog) Swim() {
 	fmt.Println("Swimming...")
 }
 

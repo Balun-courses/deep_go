@@ -11,13 +11,22 @@ func main() {
 		x int64
 	}
 
-	fmt.Println(unsafe.Sizeof(T1{}))
+	var t1 T1
+	fmt.Println("size:", unsafe.Sizeof(t1))
+	/*
+		fmt.Println("address a:", unsafe.Pointer(&t1.a))
+		fmt.Println("address x:", unsafe.Pointer(&t1.x))
+	*/
 
 	type T2 struct {
 		x int64
 		a struct{}
 	}
 
-	fmt.Println(unsafe.Sizeof(T2{}))
-
+	var t2 T2
+	fmt.Println("size:", unsafe.Sizeof(t2))
+	/*
+		fmt.Println("address a:", unsafe.Pointer(&t2.a))
+		fmt.Println("address x:", unsafe.Pointer(&t2.x))
+	*/
 }

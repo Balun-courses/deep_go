@@ -5,35 +5,6 @@ import (
 	"reflect"
 )
 
-/*
-type ParserConstraint interface {
-	Parse(string) []string
-}
-
-type ParserBase[Derived ParserConstraint] struct {
-	impl Derived
-}
-
-func (p *ParserBase[Derived]) Parse(data string) []string {
-	return p.impl.Parse(data)
-}
-
-func Parse[T ParserConstraint](parser ParserBase[T], data string) []string {
-	return parser.Parse(data)
-}
-
-func main() {
-	type JsonParser struct{}
-	type XMLParser struct{}
-
-	jsonParser := &ParserBase[JsonParser]{}
-	xmlParser := &ParserBase[XMLParser]{}
-
-	Parse(jsonParser, "json data...")
-	Parse(xmlParser, "xml data...")
-}
-*/
-
 type CloneableMixin[T any] struct{}
 
 func (m CloneableMixin[T]) Clone() *T {

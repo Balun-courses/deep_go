@@ -105,6 +105,7 @@ func TestFilter(t *testing.T) {
 		})
 	}
 }
+
 func TestReduce(t *testing.T) {
 	tests := map[string]struct {
 		initial int

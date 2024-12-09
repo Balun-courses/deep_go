@@ -27,4 +27,6 @@ func main() {
 
 	value, ok = vCh.TryRecv()
 	fmt.Println(value, ok)
+
+	vCh.Close()
 }
