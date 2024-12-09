@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,22 +18,54 @@ type MessageService struct {
 	NotEmptyStruct bool
 }
 
+const (
+	transient = iota
+	singleton
+)
+
+type containerItem struct {
+	ctor     interface{}
+	lifetime int
+	instance interface{}
+}
+
 type Container struct {
-	// need to implement
+	m map[string]*containerItem
 }
 
 func NewContainer() *Container {
-	// need to implement
-	return &Container{}
+	return &Container{m: map[string]*containerItem{}}
 }
 
 func (c *Container) RegisterType(name string, constructor interface{}) {
-	// need to implement
+	c.m[name] = &containerItem{ctor: constructor, lifetime: transient}
 }
 
 func (c *Container) Resolve(name string) (interface{}, error) {
-	// need to implement
-	return nil, nil
+	item, ok := c.m[name]
+
+	if !ok {
+		return nil, fmt.Errorf("type %s not registered", name)
+	}
+
+	fn, ok := item.ctor.(func() interface{})
+	if !ok {
+		return nil, fmt.Errorf("invalid constructor for type %s", name)
+	}
+
+	if item.lifetime == transient {
+		return fn(), nil
+	}
+
+	// not thread-safety
+	if item.instance == nil {
+		item.instance = fn()
+	}
+	return item.instance, nil
+}
+
+func (c *Container) RegisterSingletonType(name string, constructor interface{}) {
+	c.m[name] = &containerItem{ctor: constructor, lifetime: singleton}
 }
 
 func TestDIContainer(t *testing.T) {
@@ -60,4 +93,15 @@ func TestDIContainer(t *testing.T) {
 	paymentService, err := container.Resolve("PaymentService")
 	assert.Error(t, err)
 	assert.Nil(t, paymentService)
+
+	container.RegisterSingletonType("UserService2", func() interface{} {
+		return &UserService{}
+	})
+	userService3, err := container.Resolve("UserService2")
+	assert.NoError(t, err)
+	userService4, err := container.Resolve("UserService2")
+	assert.NoError(t, err)
+	u3 := userService3.(*UserService)
+	u4 := userService4.(*UserService)
+	assert.True(t, u3 == u4)
 }
