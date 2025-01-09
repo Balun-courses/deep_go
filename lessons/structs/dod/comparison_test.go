@@ -39,9 +39,9 @@ func BenchmarkDOD(b *testing.B) {
 
 	Sink = 0
 	for i := 0; i < b.N; i++ {
-		for i, f1 := range data.Field1 {
+		for j, f1 := range data.Field1 {
 			if f1 == 500000 {
-				Sink = i
+				Sink = j
 			}
 		}
 	}
@@ -54,9 +54,9 @@ func BenchmarkOOD(b *testing.B) {
 
 	Sink = 0
 	for i := 0; i < b.N; i++ {
-		for _, ant := range data {
+		for j, ant := range data {
 			if ant.Field1 == 500000 {
-				Sink = i
+				Sink = j
 			}
 		}
 	}
