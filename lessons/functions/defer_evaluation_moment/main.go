@@ -3,10 +3,7 @@ package main
 import "fmt"
 
 func main() {
-	var f = func() {
-		fmt.Println(false)
-	}
-
+	var f func()
 	defer f()
 
 	f = func() {
