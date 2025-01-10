@@ -7,7 +7,7 @@ import (
 
 func rangeWithoutAllocation() {
 	var str = "world"
-	for _, _ = range []byte(str) { // no allocation with copy
+	for range []byte(str) { // no allocation with copy
 	}
 }
 

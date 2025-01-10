@@ -7,10 +7,9 @@ import (
 
 func main() {
 	data := []byte("Hello world")
-	strData := *(*string)(unsafe.Pointer(&data))
+	strData := unsafe.String(unsafe.SliceData(data), len(data))
 
 	fmt.Println(strData)
-	data[0] = 'h'
+	data[0] = 'W'
 	fmt.Println(strData)
-
 }
