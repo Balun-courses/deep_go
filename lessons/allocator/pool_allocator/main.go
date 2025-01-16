@@ -14,7 +14,7 @@ type PoolAllocator struct {
 
 func NewPoolAllocator(capacity int, objectSize int) (PoolAllocator, error) {
 	if capacity <= 0 || objectSize <= 0 || capacity%objectSize != 0 {
-		return PoolAllocator{}, errors.New("incorrect argumnets")
+		return PoolAllocator{}, errors.New("incorrect arguments")
 	}
 
 	allocator := PoolAllocator{
