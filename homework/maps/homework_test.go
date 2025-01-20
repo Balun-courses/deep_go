@@ -37,7 +37,7 @@ func (m *OrderedMap) ForEach(action func(int, int)) {
 	// need to implement
 }
 
-func TestCircularQueue(t *testing.T) {
+func TestOrderedMap(t *testing.T) {
 	data := NewOrderedMap()
 	assert.Zero(t, data.Size())
 
