@@ -10,10 +10,8 @@ package main
 // 0100 0000 = 64
 // 1000 0000 = 128
 
-func IsPowerOfTwo() bool {
-	return true
-}
+// 0000 1111
 
-func main() {
-
+func IsPowerOfTwo(value int) bool {
+	return value > 0 && value&(value-1) == 0
 }

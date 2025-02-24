@@ -9,7 +9,7 @@ import (
 func HasDuplicatesFrom1To7WithBits(data []int) bool {
 	var lookup int8
 	for _, number := range data {
-		if lookup&(1<<number) == 1 {
+		if lookup&(1<<number) != 0 {
 			return true
 		}
 
