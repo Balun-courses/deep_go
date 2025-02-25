@@ -56,6 +56,11 @@ func zeroArray() {
 	fmt.Println(unsafe.Sizeof(data)) // 0
 }
 
+func arrayOfEmptyStructs() {
+	var data [10]struct{}
+	fmt.Println(unsafe.Sizeof(data)) // 0
+}
+
 func negativeArray() {
 	var data [-1]int // compilation error
 	_ = data

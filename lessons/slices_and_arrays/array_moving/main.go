@@ -13,11 +13,11 @@ func allocation(index int) byte {
 
 func main() {
 	var array [10]int
-	address := (uintptr)(unsafe.Pointer(&array)) // for escape analysis
+	address := (uintptr)(unsafe.Pointer(&array))
 	fmt.Println("#1 array address:", address)
 
 	allocation(100)
 
-	address = (uintptr)(unsafe.Pointer(&array)) // for escape analysis
+	address = (uintptr)(unsafe.Pointer(&array))
 	fmt.Println("#2 array address:", address)
 }

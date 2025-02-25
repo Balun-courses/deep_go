@@ -17,7 +17,7 @@ func FindData(filename string) []byte {
 	for i := 0; i < len(data)-1; i++ {
 		if data[i] == 0xFF && data[i+1] == 0x00 {
 			partData := make([]byte, 20)
-			copy(partData, data)
+			copy(partData, data[i+2:])
 			return partData
 		}
 	}
