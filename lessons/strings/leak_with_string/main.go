@@ -1,19 +1,19 @@
 package main
 
-func FindData(filename string) string {
-	var data string
-	// reading data from file..
-
+func findSequence(data string) string {
 	for i := 0; i < len(data)-1; i++ {
 		if data[i] == '\n' && data[i+1] == '\t' {
-			return data[i+2 : i+22] // capacity leak
+			return data[i+2 : i+22]
 		}
 	}
 
 	return ""
 }
 
-func main() {
-	_ = FindData("data.txt")
-	// potentially high memory consumption
+func processBigData() {
+	var data string
+	// let's imagine that data was read from a file
+
+	sequence := findSequence(data)
+	_ = sequence // using of sequence later
 }

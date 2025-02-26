@@ -25,6 +25,3 @@ func slicingString() {
 		_ = str[0:10] -> compilation error
 	*/
 }
-
-func main() {
-}
