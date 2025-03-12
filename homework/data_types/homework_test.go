@@ -2,14 +2,32 @@ package main
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/exp/constraints"
 )
 
 // go test -v homework_test.go
 
+func ToLittleEndianForInteger[T constraints.Integer](number T) T {
+	result := number
+	pResult := unsafe.Pointer(&result)
+
+	n := int(unsafe.Sizeof(result))
+	for offset := 0; offset < n/2; offset++ {
+		lp := (*uint8)(unsafe.Add(pResult, offset))
+		rp := (*uint8)(unsafe.Add(pResult, n-offset-1))
+		tmp := *lp
+		*lp = *rp
+		*rp = tmp
+	}
+
+	return result
+}
+
 func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+	return ToLittleEndianForInteger[uint32](number)
 }
 
 func TestСonversion(t *testing.T) {
