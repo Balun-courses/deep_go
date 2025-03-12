@@ -16,7 +16,9 @@ func main() {
 	var i Interface
 
 	i = &Object1{}
+
 	i = Object2{}
+	i = &Object2{}
 
 	_ = i
 }

@@ -5,28 +5,27 @@ import (
 	"os"
 )
 
-func ReadFile(filename string) error {
-	var err *os.PathError
+func ReadFile(filename string) (err error) {
+	var internalErr *os.PathError
 
 	if filename == "" {
-		return err
+		return internalErr
 	}
 
 	// reading...
-	return err
+	return nil
 }
 
 func main() {
-	err := ReadFile("text.txt")
+	err := ReadFile("")
 	if err != nil {
 		fmt.Println("error")
 	} else {
 		fmt.Println("nil")
 	}
 
-	/*
-		fmt.Println("value of err: ", err)
-		fmt.Printf("type of err: %T\n", err)
-		fmt.Println("(err == nil): ", err == nil)
-	*/
+	fmt.Println("value of err: ", err)
+	fmt.Printf("type of err: %T\n", err)
+	fmt.Println("(err == nil): ", err == nil)
+
 }
