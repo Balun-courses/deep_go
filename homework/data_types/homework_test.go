@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,11 +10,30 @@ import (
 
 // go test -v homework_test.go
 
-func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+type Uint interface {
+	uint | uint16 | uint32 | uint64
 }
 
-func TestСonversion(t *testing.T) {
+func ToLittleEndian[T Uint](number T) T {
+	var reversed T
+
+	buf := new(bytes.Buffer)
+	_ = binary.Write(buf, binary.BigEndian, number)
+
+	bufR := bytes.NewReader(buf.Bytes())
+	_ = binary.Read(bufR, binary.LittleEndian, &reversed)
+
+	// Забавно, но и в обратном порядке тесты проходят
+	//buf := new(bytes.Buffer)
+	//_ = binary.Write(buf, binary.LittleEndian, number)
+	//
+	//bufR := bytes.NewReader(buf.Bytes())
+	//_ = binary.Read(bufR, binary.BigEndian, &reversed)
+
+	return reversed
+}
+
+func TestConversion(t *testing.T) {
 	tests := map[string]struct {
 		number uint32
 		result uint32
