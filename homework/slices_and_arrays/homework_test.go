@@ -10,36 +10,85 @@ import (
 // go test -v homework_test.go
 
 type CircularQueue struct {
-	values []int
-	// need to implement
+	values      []int
+	maxSize     int
+	currentSize int
+	beginIndex  int
+	endIndex    int
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{} // need to implement
+	return CircularQueue{
+		values:      make([]int, size),
+		maxSize:     size,
+		currentSize: 0,
+		beginIndex:  0,
+		endIndex:    0,
+	}
 }
 
 func (q *CircularQueue) Push(value int) bool {
-	return false // need to implement
+	if q.Full() {
+		return false
+	}
+	q.values[q.endIndex] = value
+	q.currentSize++
+	q.incrementEndIndex()
+	return true
 }
 
 func (q *CircularQueue) Pop() bool {
-	return false // need to implement
+	if q.Empty() {
+		return false
+	}
+	q.incrementBeginIndex()
+	q.currentSize--
+	return true
 }
 
 func (q *CircularQueue) Front() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+
+	return q.values[q.beginIndex]
 }
 
 func (q *CircularQueue) Back() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+
+	if q.endIndex == 0 {
+		return q.values[q.maxSize-1]
+	}
+
+	return q.values[q.endIndex-1]
 }
 
 func (q *CircularQueue) Empty() bool {
-	return false // need to implement
+	return q.currentSize == 0
 }
 
 func (q *CircularQueue) Full() bool {
-	return false // need to implement
+	return q.currentSize == q.maxSize
+}
+
+func (q *CircularQueue) incrementEndIndex() {
+	if q.endIndex == q.maxSize-1 {
+		q.endIndex = 0
+		return
+	}
+	q.endIndex++
+}
+
+func (q *CircularQueue) incrementBeginIndex() {
+	if q.beginIndex == q.maxSize-1 {
+		q.beginIndex = 0
+		return
+	}
+
+	q.beginIndex++
 }
 
 func TestCircularQueue(t *testing.T) {
