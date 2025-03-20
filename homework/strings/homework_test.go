@@ -2,6 +2,8 @@ package main
 
 import (
 	"reflect"
+	"runtime"
+	"sync"
 	"testing"
 	"unsafe"
 
@@ -11,27 +13,80 @@ import (
 type COWBuffer struct {
 	data []byte
 	refs *int
-	// need to implement
+	mx   *sync.Mutex
+}
+
+func finalizer(b *COWBuffer) {
+	b.Close()
 }
 
 func NewCOWBuffer(data []byte) COWBuffer {
-	return COWBuffer{} // need to implement
+	refs := 1
+
+	b := COWBuffer{
+		data: data,
+		refs: &refs,
+		mx:   &sync.Mutex{},
+	}
+
+	runtime.SetFinalizer(&b, finalizer)
+
+	return b
 }
 
 func (b *COWBuffer) Clone() COWBuffer {
-	return COWBuffer{} // need to implement
+	b.mx.Lock()
+	*b.refs++
+	defer b.mx.Unlock()
+	return COWBuffer{
+		data: b.data,
+		refs: b.refs,
+		mx:   b.mx,
+	}
 }
 
 func (b *COWBuffer) Close() {
-	// need to implement
+	b.mx.Lock()
+	*b.refs--
+	if *b.refs <= 0 {
+		b.data = nil
+	}
+	defer b.mx.Unlock()
 }
 
 func (b *COWBuffer) Update(index int, value byte) bool {
-	return false // need to implement
+	n := len(b.data)
+	if index < 0 || index >= n {
+		return false
+	}
+
+	b.mx.Lock()
+	defer b.mx.Unlock()
+
+	// никто больше не ссылается на буффер
+	if *b.refs <= 1 {
+		b.data[index] = value
+		return true
+	}
+
+	data := make([]byte, n)
+	copy(data, b.data)
+	data[index] = value
+
+	// изменяем общий счетчик в любом случае
+	*b.refs--
+
+	// создаем рельную отдельную копию
+	b.data = data
+	refs := 1
+	b.refs = &refs
+	b.mx = &sync.Mutex{}
+
+	return true
 }
 
 func (b *COWBuffer) String() string {
-	return "" // need to implement
+	return unsafe.String(unsafe.SliceData(b.data), len(b.data))
 }
 
 func TestCOWBuffer(t *testing.T) {
