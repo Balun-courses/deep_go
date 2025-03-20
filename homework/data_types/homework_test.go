@@ -10,7 +10,7 @@ import (
 
 // go test -v homework_test.go
 
-func ToLittleEndianForInteger[T constraints.Integer](number T) T {
+func ToLittleEndian[T constraints.Integer](number T) T {
 	result := number
 	pResult := unsafe.Pointer(&result)
 
@@ -18,16 +18,10 @@ func ToLittleEndianForInteger[T constraints.Integer](number T) T {
 	for offset := 0; offset < n/2; offset++ {
 		lp := (*uint8)(unsafe.Add(pResult, offset))
 		rp := (*uint8)(unsafe.Add(pResult, n-offset-1))
-		tmp := *lp
-		*lp = *rp
-		*rp = tmp
+		*lp, *rp = *rp, *lp
 	}
 
 	return result
-}
-
-func ToLittleEndian(number uint32) uint32 {
-	return ToLittleEndianForInteger[uint32](number)
 }
 
 func TestСonversion(t *testing.T) {
@@ -59,7 +53,7 @@ func TestСonversion(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			result := ToLittleEndian(test.number)
+			result := ToLittleEndian[uint32](test.number)
 			assert.Equal(t, test.result, result)
 		})
 	}
