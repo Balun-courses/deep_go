@@ -20,7 +20,4 @@ func main() {
 
 	setBool := SetBool1{}
 	_ = setBool
-
-	// var cmp Comparable -> compilation error
-	// var cst Constraint -> compilation error
 }

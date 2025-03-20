@@ -44,6 +44,8 @@ func main() {
 	fmt.Println(square.Area())
 	fmt.Println(square.Perimeter())
 
+	var i interface{} = &Square{}
+
 	// dynamic dispatch
 	iface := NewInterface(square)
 	fmt.Println(iface.Area())

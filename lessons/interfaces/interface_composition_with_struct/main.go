@@ -10,8 +10,6 @@ type StrData interface {
 }
 
 func main() {
-	/*
-		var data StrData
-		_ = data
-	*/
+	var data StrData
+	_ = data
 }
