@@ -5,7 +5,7 @@ import (
 	"unsafe"
 )
 
-type emptyInterface struct {
+type eface struct {
 	typ  unsafe.Pointer
 	data unsafe.Pointer
 }
@@ -27,7 +27,7 @@ func main() {
 	iface := any(data)
 
 	ifacePtr := unsafe.Pointer(&iface)
-	emptyIfacePtr := (*emptyInterface)(ifacePtr)
+	emptyIfacePtr := (*eface)(ifacePtr)
 
 	hm := (*hmap)(emptyIfacePtr.data)
 	fmt.Println("count:", hm.count, "buckets:", 1<<hm.B)

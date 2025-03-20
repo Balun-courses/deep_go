@@ -15,5 +15,11 @@ func main() {
 		data[10+key] = struct{}{}
 	}
 
+	for key := range data {
+		fmt.Print(key)
+		fmt.Print(" ")
+	}
+
+	fmt.Println()
 	fmt.Println(data)
 }
