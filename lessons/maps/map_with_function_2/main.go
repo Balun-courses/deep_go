@@ -11,5 +11,4 @@ func main() {
 	fmt.Println(data)
 	change(data)
 	fmt.Println(data)
-
 }
