@@ -3,7 +3,6 @@ package main
 import (
 	"reflect"
 	"runtime"
-	"sync"
 	"testing"
 	"unsafe"
 
@@ -13,11 +12,6 @@ import (
 type COWBuffer struct {
 	data []byte
 	refs *int
-	mx   *sync.Mutex
-}
-
-func finalizer(b *COWBuffer) {
-	b.Close()
 }
 
 func NewCOWBuffer(data []byte) COWBuffer {
@@ -26,32 +20,28 @@ func NewCOWBuffer(data []byte) COWBuffer {
 	b := COWBuffer{
 		data: data,
 		refs: &refs,
-		mx:   &sync.Mutex{},
 	}
 
-	runtime.SetFinalizer(&b, finalizer)
+	runtime.SetFinalizer(&b, func(b *COWBuffer) {
+		b.Clone()
+	})
 
 	return b
 }
 
 func (b *COWBuffer) Clone() COWBuffer {
-	b.mx.Lock()
 	*b.refs++
-	defer b.mx.Unlock()
 	return COWBuffer{
 		data: b.data,
 		refs: b.refs,
-		mx:   b.mx,
 	}
 }
 
 func (b *COWBuffer) Close() {
-	b.mx.Lock()
 	*b.refs--
 	if *b.refs <= 0 {
 		b.data = nil
 	}
-	defer b.mx.Unlock()
 }
 
 func (b *COWBuffer) Update(index int, value byte) bool {
@@ -59,9 +49,6 @@ func (b *COWBuffer) Update(index int, value byte) bool {
 	if index < 0 || index >= n {
 		return false
 	}
-
-	b.mx.Lock()
-	defer b.mx.Unlock()
 
 	// никто больше не ссылается на буффер
 	if *b.refs <= 1 {
@@ -80,7 +67,6 @@ func (b *COWBuffer) Update(index int, value byte) bool {
 	b.data = data
 	refs := 1
 	b.refs = &refs
-	b.mx = &sync.Mutex{}
 
 	return true
 }
