@@ -16,16 +16,16 @@ func WithPhone(phone string) Option {
 
 func WithAddress(address string) Option {
 	return func(user *User) {
-		user.Adddress = address
+		user.Address = address
 	}
 }
 
 type User struct {
-	Name     string
-	Surname  string
-	Email    string
-	Phone    string
-	Adddress string
+	Name    string
+	Surname string
+	Email   string
+	Phone   string
+	Address string
 }
 
 func NewUser(name string, surname string, options ...Option) User {

@@ -19,8 +19,8 @@ type Base struct {
 
 func main() {
 	var base Base
-	// _ = base.values -> compilation error
-	// base.Print()    -> compilation error
+	// _ = base.values
+	// base.Print()
 
 	base.Derived1.values = nil
 	base.Derived2.values = nil
