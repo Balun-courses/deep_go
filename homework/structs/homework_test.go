@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"testing"
 	"unsafe"
@@ -96,12 +97,16 @@ const (
 	WarriorGamePersonType
 )
 
+// GamePerson выравнивание 8 байт, потому что у строка это заголовок вида (ptr, len), то есть 8 + 8 байт
 type GamePerson struct {
-	hasHouse, hasGun, hasFamilty                     bool
-	personType, respect, strength, experience, level uint8
-	mana, health                                     uint16
-	x, y, z, gold                                    int32
-	name                                             string
+	hasHouse, hasGun, hasFamilty                     bool  // выравнивание на 8
+	personType, respect, strength, experience, level uint8 // пойдет вместе булами выше в одно выравнивание, видимо потому что все однобайтовое
+
+	mana, health  uint16 // новые выравнивание на 8, offset 8 и 10 соотвественно
+	x, y, z, gold int32  // займет 2 раза по 8 байт, offsets 12, 16, 20, 24 соответственно
+	name          string // займет 2 раза по 8 байт, offset 32
+
+	// итоговый размер будет 48
 }
 
 func NewGamePerson(options ...Option) GamePerson {
@@ -175,7 +180,33 @@ func (p *GamePerson) Type() int {
 }
 
 func TestGamePerson(t *testing.T) {
+
 	assert.LessOrEqual(t, unsafe.Sizeof(GamePerson{}), uintptr(64))
+
+	fmt.Println("Sizeof:", unsafe.Sizeof(GamePerson{}))
+	fmt.Println("Alignof:", unsafe.Alignof(GamePerson{}))
+	fmt.Println()
+
+	gp := GamePerson{}
+	fmt.Println("Offsetof(hasHouse):", unsafe.Offsetof(gp.hasHouse))
+	fmt.Println("Offsetof(hasGun):", unsafe.Offsetof(gp.hasGun))
+	fmt.Println("Offsetof(hasFamilty):", unsafe.Offsetof(gp.hasFamilty))
+	fmt.Println()
+	fmt.Println("Offsetof(personType):", unsafe.Offsetof(gp.personType))
+	fmt.Println("Offsetof(respect):", unsafe.Offsetof(gp.respect))
+	fmt.Println("Offsetof(strength):", unsafe.Offsetof(gp.strength))
+	fmt.Println("Offsetof(experience):", unsafe.Offsetof(gp.experience))
+	fmt.Println("Offsetof(level):", unsafe.Offsetof(gp.level))
+	fmt.Println()
+	fmt.Println("Offsetof(mana):", unsafe.Offsetof(gp.mana))
+	fmt.Println("Offsetof(health):", unsafe.Offsetof(gp.health))
+	fmt.Println()
+	fmt.Println("Offsetof(x):", unsafe.Offsetof(gp.x))
+	fmt.Println("Offsetof(y):", unsafe.Offsetof(gp.y))
+	fmt.Println("Offsetof(z):", unsafe.Offsetof(gp.z))
+	fmt.Println("Offsetof(gold):", unsafe.Offsetof(gp.gold))
+	fmt.Println()
+	fmt.Println("Offsetof(name):", unsafe.Offsetof(gp.name))
 
 	const x, y, z = math.MinInt32, math.MaxInt32, 0
 	const name = "aaaaaaaaaaaaa_bbbbbbbbbbbbb_cccccccccccccc"
