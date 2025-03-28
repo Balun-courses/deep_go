@@ -14,5 +14,6 @@ type data struct {
 func main() {
 	d := data{}
 	fmt.Println(unsafe.Offsetof(d.ccc))
+
 	fmt.Println(unsafe.Alignof(d))
 }

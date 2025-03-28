@@ -3,12 +3,12 @@ package main
 type Data struct{}
 
 func MakeData(pointer *int) Data {
-	println(*pointer)
+	println("MakeData:", *pointer)
 	return Data{}
 }
 
 func (Data) Print(pointer *int) {
-	println(*pointer)
+	println("Print:", *pointer)
 }
 
 func main() {
