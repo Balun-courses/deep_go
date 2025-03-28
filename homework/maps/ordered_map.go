@@ -7,7 +7,6 @@ import (
 type node[K cmp.Ordered, V any] struct {
 	key         K
 	value       V
-	isDeleted   bool
 	left, right *node[K, V]
 }
 
@@ -22,7 +21,6 @@ func (m *OrderedMap[K, V]) put(current *node[K, V], k K, v V) *node[K, V] {
 	}
 
 	if k == current.key {
-		current.isDeleted = false
 		current.value = v
 		return current
 	}
@@ -36,22 +34,37 @@ func (m *OrderedMap[K, V]) put(current *node[K, V], k K, v V) *node[K, V] {
 	return current
 }
 
-func (m *OrderedMap[K, V]) del(current *node[K, V], parent *node[K, V], k K) *node[K, V] {
+func (m *OrderedMap[K, V]) del(current *node[K, V], k K) *node[K, V] {
 	if current == nil {
 		return nil
 	}
 
 	if k < current.key {
-		current.left = m.del(current.left, current, k)
+		current.left = m.del(current.left, k)
 		return current
 	}
 
 	if k > current.key {
-		current.right = m.del(current.right, current, k)
+		current.right = m.del(current.right, k)
 		return current
 	}
 
-	current.isDeleted = true
+	if current.left == nil {
+		return current.right
+	}
+
+	if current.right == nil {
+		return current.left
+	}
+
+	// find left with min in right subtree
+	leaf := current
+	for leaf.left != nil {
+		leaf = leaf.left
+	}
+
+	current.value, current.key = leaf.value, leaf.key
+	current.right = m.del(current.right, current.key)
 
 	return current
 }
@@ -61,7 +74,7 @@ func (m *OrderedMap[K, V]) has(current *node[K, V], k K) bool {
 		return false
 	}
 
-	if k == current.key && !current.isDeleted {
+	if k == current.key {
 		return true
 	}
 
@@ -78,9 +91,7 @@ func (m *OrderedMap[K, V]) inOrderTraverse(current *node[K, V], fn func(k K, v V
 	}
 
 	m.inOrderTraverse(current.left, fn)
-	if !current.isDeleted {
-		fn(current.key, current.value)
-	}
+	fn(current.key, current.value)
 	m.inOrderTraverse(current.right, fn)
 }
 
@@ -96,8 +107,11 @@ func (m *OrderedMap[K, V]) Insert(key K, value V) {
 // Erase removes the key-value pair with the given key from the map.
 // It is a no-op if the key is not present in the map.
 func (m *OrderedMap[K, V]) Erase(key K) {
+	if !m.has(m.root, key) {
+		return
+	}
 	m.size--
-	m.root = m.del(m.root, nil, key)
+	m.root = m.del(m.root, key)
 }
 
 func (m *OrderedMap[K, V]) Contains(key K) bool {
