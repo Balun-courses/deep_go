@@ -39,6 +39,7 @@ func (a *PoolAllocator) Allocate() (unsafe.Pointer, error) {
 		break
 	}
 
+	delete(a.freeObjects, pointer)
 	return pointer, nil
 }
 
