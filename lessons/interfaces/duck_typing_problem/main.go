@@ -18,4 +18,4 @@ func NewProvider() Provider {
 	return Provider{}
 }
 
-func (p *Provider) ProvideUserRepo()
+func (p *Provider) ProvideUserRepo() UserService

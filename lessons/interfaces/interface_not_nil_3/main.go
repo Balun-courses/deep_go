@@ -11,6 +11,6 @@ func Process(i interface{}) {
 }
 
 func main() {
-	var data Data
+	var data *Data = nil
 	Process(data)
 }
