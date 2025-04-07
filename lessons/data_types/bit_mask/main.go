@@ -13,16 +13,16 @@ const (
 )
 
 func Open(filename string, mask int8) {
-	if mask&OpenModeIn == 1 {
+	if mask&OpenModeIn != 0 {
 		fmt.Println("in mode")
 	}
-	if mask&OpenModeOut == 1 {
+	if mask&OpenModeOut != 0 {
 		fmt.Println("out mode")
 	}
-	if mask&OpenModeAppend == 1 {
+	if mask&OpenModeAppend != 0 {
 		fmt.Println("append mode")
 	}
-	if mask&OpenModeBinary == 1 {
+	if mask&OpenModeBinary != 0 {
 		fmt.Println("binary mode")
 	}
 
