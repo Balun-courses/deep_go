@@ -8,8 +8,29 @@ import (
 
 // go test -v homework_test.go
 
-func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+type UnsignedNumber interface {
+	uint16 | uint32 | uint64 | uint
+}
+
+func ToLittleEndian[T UnsignedNumber](number T) T {
+	const (
+		byteMask  = 0xFF // Маска для первого байта
+		byteShift = 8    // Кол-во битов в одном байте
+	)
+
+	var (
+		maxValue = ^T(0) // Максимальное значение 0xFF...
+		res      T
+	)
+
+	for remainingBytes := maxValue; remainingBytes > 0; remainingBytes >>= byteShift {
+		res <<= byteShift
+		res |= number & byteMask
+
+		number >>= byteShift
+	}
+
+	return res
 }
 
 func TestСonversion(t *testing.T) {
