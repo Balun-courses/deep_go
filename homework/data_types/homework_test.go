@@ -8,10 +8,6 @@ import (
 
 // go test -v homework_test.go
 
-func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
-}
-
 func TestСonversion(t *testing.T) {
 	tests := map[string]struct {
 		number uint32
@@ -40,8 +36,12 @@ func TestСonversion(t *testing.T) {
 	}
 
 	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
+		t.Run(name+"commonTask", func(t *testing.T) {
 			result := ToLittleEndian(test.number)
+			assert.Equal(t, test.result, result)
+		})
+		t.Run(name+"generic", func(t *testing.T) {
+			result := ToLittleEndianGeneric(test.number)
 			assert.Equal(t, test.result, result)
 		})
 	}
