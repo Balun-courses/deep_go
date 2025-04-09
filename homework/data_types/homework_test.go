@@ -11,12 +11,14 @@ import (
 
 func ToLittleEndian[T uint16 | uint32 | uint64](number T) T {
 	size := int(unsafe.Sizeof(number))
-	out := make([]byte, size)
 	unsptr := unsafe.Pointer(&number)
-	for i := size - 1; i >= 0; i-- {
-		out[size-i-1] = *(*byte)(unsafe.Add(unsptr, i))
+
+	var out T
+	for i := range size {
+		b := *(*byte)(unsafe.Add(unsptr, i))
+		out |= T(b) << ((size - 1 - i) * 8)
 	}
-	return *(*T)(unsafe.Pointer(&out[0]))
+	return out
 }
 
 func TestСonversion(t *testing.T) {
