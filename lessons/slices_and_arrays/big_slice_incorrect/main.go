@@ -13,7 +13,7 @@ func printAllocs() {
 
 func findSequence(data []byte) []byte {
 	for i := 0; i < len(data)-1; i++ {
-		if data[i] == 0xFF && data[i+1] == 0xEE {
+		if data[i] == 0x00 && data[i+1] == 0x00 {
 			return data[i : i+20]
 		}
 	}
@@ -21,10 +21,16 @@ func findSequence(data []byte) []byte {
 	return nil
 }
 
-func processBigData() {
-	var data []byte
+func main() {
+	data := make([]byte, 1<<30)
 	// let's imagine that data was read from a file
 
 	sequence := findSequence(data)
 	_ = sequence // using of sequence later
+
+	printAllocs()
+	runtime.GC()
+	printAllocs()
+
+	runtime.KeepAlive(sequence)
 }
