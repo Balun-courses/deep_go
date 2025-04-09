@@ -62,7 +62,7 @@ func ToLittleEndianV2[T customUint](number T) T {
 	return number
 }
 
-func TestСonversion32(t *testing.T) {
+func TestConversion32(t *testing.T) {
 	tests := map[string]struct {
 		number uint32
 		result uint32
@@ -100,7 +100,7 @@ func TestСonversion32(t *testing.T) {
 	}
 }
 
-func TestСonversion16(t *testing.T) {
+func TestConversion16(t *testing.T) {
 	tests := map[string]struct {
 		number uint16
 		result uint16
@@ -134,7 +134,7 @@ func TestСonversion16(t *testing.T) {
 	}
 }
 
-func TestСonversion64(t *testing.T) {
+func TestConversion64(t *testing.T) {
 	tests := map[string]struct {
 		number uint64
 		result uint64
