@@ -30,13 +30,13 @@ func ToLittleEndian[T customUint](number T) T {
 	return number
 }
 
-func ToLittleEndianV2[T customUint](number T) T {
+func ToLittleEndianBitShift[T customUint](number T) T {
 	/*
 		number = 4000002010 (uint32)
 		11101110 01101011 00101111 11011010
 
 		00000000 00000000 00000000 11101110 ((n >> 24) & 0xff)
-		00000000 00000000 1101011 00000000 ((n>>16)&0xff)<<8
+		00000000 00000000 01101011 00000000 ((n>>16)&0xff)<<8
 		00000000 00101111 00000000 00000000 ((n>>8)&0xff)<<16
 		11011010 00000000 00000000 00000000 (n&0xff)<<24
 	*/
@@ -94,7 +94,7 @@ func TestConversion32(t *testing.T) {
 			result := ToLittleEndian(test.number)
 			assert.Equal(t, test.result, result)
 
-			result = ToLittleEndianV2(test.number)
+			result = ToLittleEndianBitShift(test.number)
 			assert.Equal(t, test.result, result)
 		})
 	}
@@ -128,7 +128,7 @@ func TestConversion16(t *testing.T) {
 			result := ToLittleEndian(test.number)
 			assert.Equal(t, test.result, result)
 
-			result = ToLittleEndianV2(test.number)
+			result = ToLittleEndianBitShift(test.number)
 			assert.Equal(t, test.result, result)
 		})
 	}
@@ -166,10 +166,28 @@ func TestConversion64(t *testing.T) {
 			result := ToLittleEndian(test.number)
 			assert.Equal(t, test.result, result)
 
-			result = ToLittleEndianV2(test.number)
+			result = ToLittleEndianBitShift(test.number)
 			assert.Equal(t, test.result, result)
 		})
 	}
+}
+
+func ToLittleEndianBitShiftUint32(number uint32) uint32 {
+	return ((number >> 24) & 0xff) |
+		((number>>16)&0xff)<<8 |
+		((number>>8)&0xff)<<16 |
+		(number&0xff)<<24
+}
+
+func ToLittleEndianBitShiftUint64(number uint64) uint64 {
+	return ((number >> 56) & 0xff) |
+		((number>>48)&0xff)<<8 |
+		((number>>40)&0xff)<<16 |
+		((number>>32)&0xff)<<24 |
+		((number>>24)&0xff)<<32 |
+		((number>>16)&0xff)<<40 |
+		((number>>8)&0xff)<<48 |
+		(number&0xff)<<56
 }
 
 // BenchmarkConversion-20    	486409120	         2.601 ns/op	       0 B/op	       0 allocs/op
@@ -180,10 +198,26 @@ func BenchmarkConversion(b *testing.B) {
 	}
 }
 
-// BenchmarkConversionV2-20    	481536486	         2.590 ns/op	       0 B/op	       0 allocs/op
-func BenchmarkConversionV2(b *testing.B) {
+// BenchmarkConversionBitShift-20    	481536486	         2.590 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkConversionBitShift(b *testing.B) {
 	b.ReportAllocs()
 	for n := 0; n < b.N; n++ {
-		_ = ToLittleEndianV2(uint64(0x0102030405060708))
+		_ = ToLittleEndianBitShift(uint64(0x0102030405060708))
+	}
+}
+
+// BenchmarkConversionBitShiftOnly32-20    	1000000000	         0.1715 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkConversionBitShiftOnly32(b *testing.B) {
+	b.ReportAllocs()
+	for n := 0; n < b.N; n++ {
+		_ = ToLittleEndianBitShiftUint32(4000002010)
+	}
+}
+
+// BenchmarkConversionBitShiftOnly64-20    	1000000000	         0.1705 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkConversionBitShiftOnly64(b *testing.B) {
+	b.ReportAllocs()
+	for n := 0; n < b.N; n++ {
+		_ = ToLittleEndianBitShiftUint64(18040740070709501011)
 	}
 }
