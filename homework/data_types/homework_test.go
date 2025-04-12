@@ -9,7 +9,11 @@ import (
 // go test -v homework_test.go
 
 func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+	first := (number & 0x000000FF) << (3 * 8)
+	second := (number & 0x0000FF00) << (1 * 8)
+	third := (number & 0x00FF0000) >> (1 * 8)
+	fourth := (number & 0xFF000000) >> (3 * 8)
+	return first | second | third | fourth
 }
 
 func TestСonversion(t *testing.T) {
