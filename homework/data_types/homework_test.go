@@ -6,8 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// go test -v homework_test.go
-
 func ToLittleEndian(number uint32) uint32 {
 	first := (number & 0x000000FF) << (3 * 8)
 	second := (number & 0x0000FF00) << (1 * 8)
