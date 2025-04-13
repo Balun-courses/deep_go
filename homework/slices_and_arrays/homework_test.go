@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -11,35 +12,83 @@ import (
 
 type CircularQueue struct {
 	values []int
+	begin  int
+	tail   int
+	size   int
 	// need to implement
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{} // need to implement
+	return CircularQueue{
+		values: make([]int, size),
+		size:   size,
+		begin:  -1,
+	} // need to implement
 }
 
 func (q *CircularQueue) Push(value int) bool {
-	return false // need to implement
+	if q.tail == q.begin {
+		return false
+	}
+
+	q.values[q.tail] = value
+	if q.begin == -1 {
+		q.begin = q.tail
+	}
+
+	if q.tail+1 >= q.size {
+		q.tail = 0
+	} else {
+		q.tail++
+	}
+
+	return true // need to implement
 }
 
 func (q *CircularQueue) Pop() bool {
-	return false // need to implement
+	if q.begin == -1 {
+		return false
+	}
+
+	q.begin++
+	if q.begin >= q.size {
+		q.begin = 0
+	}
+
+	if q.tail == q.begin {
+		q.begin = -1
+	}
+
+	return true // need to implement
 }
 
 func (q *CircularQueue) Front() int {
-	return -1 // need to implement
+	if q.begin == -1 {
+		return -1
+	}
+
+	return q.values[q.begin] // need to implement
 }
 
 func (q *CircularQueue) Back() int {
-	return -1 // need to implement
+	if q.begin == -1 {
+		return -1
+	}
+
+	pre := q.tail - 1
+	if pre < 0 {
+		pre = q.size - 1
+	}
+
+	return q.values[pre] // need to implement
 }
 
 func (q *CircularQueue) Empty() bool {
-	return false // need to implement
+	return q.begin == -1 // need to implement
 }
 
 func (q *CircularQueue) Full() bool {
-	return false // need to implement
+	return q.begin == q.tail // need to implement
 }
 
 func TestCircularQueue(t *testing.T) {
@@ -70,7 +119,7 @@ func TestCircularQueue(t *testing.T) {
 	assert.False(t, queue.Empty())
 	assert.False(t, queue.Full())
 	assert.True(t, queue.Push(4))
-
+	fmt.Println(queue.values)
 	assert.True(t, reflect.DeepEqual([]int{4, 2, 3}, queue.values))
 
 	assert.Equal(t, 2, queue.Front())
