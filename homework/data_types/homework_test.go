@@ -7,11 +7,10 @@ import (
 )
 
 func ToLittleEndian(number uint32) uint32 {
-	first := (number & 0x000000FF) << (3 * 8)
-	second := (number & 0x0000FF00) << (1 * 8)
-	third := (number & 0x00FF0000) >> (1 * 8)
-	fourth := (number & 0xFF000000) >> (3 * 8)
-	return first | second | third | fourth
+	return (number&0x000000FF)<<24 |
+		(number&0x0000FF00)<<8 |
+		(number&0x00FF0000)>>8 |
+		(number&0xFF000000)>>24
 }
 
 func TestСonversion(t *testing.T) {
