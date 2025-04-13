@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -10,23 +9,27 @@ import (
 
 // go test -v homework_test.go
 
-type CircularQueue struct {
-	values []int
+type homeworkType interface {
+	int | int8 | int16 | int32 | int64
+}
+
+type CircularQueue[T homeworkType] struct {
+	values []T
 	begin  int
 	tail   int
 	size   int
 	// need to implement
 }
 
-func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{
-		values: make([]int, size),
+func NewCircularQueue[T homeworkType](size int) CircularQueue[T] {
+	return CircularQueue[T]{
+		values: make([]T, size),
 		size:   size,
 		begin:  -1,
 	} // need to implement
 }
 
-func (q *CircularQueue) Push(value int) bool {
+func (q *CircularQueue[T]) Push(value T) bool {
 	if q.tail == q.begin {
 		return false
 	}
@@ -45,7 +48,7 @@ func (q *CircularQueue) Push(value int) bool {
 	return true // need to implement
 }
 
-func (q *CircularQueue) Pop() bool {
+func (q *CircularQueue[T]) Pop() bool {
 	if q.begin == -1 {
 		return false
 	}
@@ -62,7 +65,7 @@ func (q *CircularQueue) Pop() bool {
 	return true // need to implement
 }
 
-func (q *CircularQueue) Front() int {
+func (q *CircularQueue[T]) Front() T {
 	if q.begin == -1 {
 		return -1
 	}
@@ -70,7 +73,7 @@ func (q *CircularQueue) Front() int {
 	return q.values[q.begin] // need to implement
 }
 
-func (q *CircularQueue) Back() int {
+func (q *CircularQueue[T]) Back() T {
 	if q.begin == -1 {
 		return -1
 	}
@@ -83,17 +86,17 @@ func (q *CircularQueue) Back() int {
 	return q.values[pre] // need to implement
 }
 
-func (q *CircularQueue) Empty() bool {
+func (q *CircularQueue[T]) Empty() bool {
 	return q.begin == -1 // need to implement
 }
 
-func (q *CircularQueue) Full() bool {
+func (q *CircularQueue[T]) Full() bool {
 	return q.begin == q.tail // need to implement
 }
 
 func TestCircularQueue(t *testing.T) {
 	const queueSize = 3
-	queue := NewCircularQueue(queueSize)
+	queue := NewCircularQueue[int](queueSize)
 
 	assert.True(t, queue.Empty())
 	assert.False(t, queue.Full())
