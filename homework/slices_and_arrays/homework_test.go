@@ -10,8 +10,8 @@ import (
 // go test -v homework_test.go
 
 type CircularQueue struct {
-	values      []int
-	front, rear int
+	values            []int
+	front, rear, size int
 }
 
 // создать очередь с определенным размером буффера
@@ -19,8 +19,6 @@ func NewCircularQueue(size int) CircularQueue {
 	values := make([]int, size)
 	return CircularQueue{
 		values: values,
-		front:  -1,
-		rear:   -1,
 	}
 }
 
@@ -30,12 +28,14 @@ func (q *CircularQueue) Push(value int) bool {
 		return false
 	}
 
-	if q.front == -1 {
-		q.front = 0
+	if q.rear == len(q.values)-1 || q.Empty() {
+		q.rear = 0
+	} else {
+		q.rear++
 	}
 
-	q.rear = (q.rear + 1) % len(q.values)
 	q.values[q.rear] = value
+	q.size++
 
 	return true
 }
@@ -46,12 +46,13 @@ func (q *CircularQueue) Pop() bool {
 		return false
 	}
 
-	if q.front == q.rear {
-		q.front = -1
-		q.rear = -1
+	if q.size == 1 {
+		q.size = 0
+		q.front = 0
+		q.rear = 0
 	} else {
-		// В очереди только один элемент, сбрасываем её после удаления элемента
-		q.front = (q.front + 1) % len(q.values)
+		q.size--
+		q.front++
 	}
 
 	return true
@@ -77,16 +78,12 @@ func (q *CircularQueue) Back() int {
 
 // проверить пустая ли очередь
 func (q *CircularQueue) Empty() bool {
-	return q.front == -1
+	return q.size == 0
 }
 
 // проверить заполнена ли очередь
 func (q *CircularQueue) Full() bool {
-	if (q.front == (q.rear+1)%len(q.values)) || (q.front == 0 && q.rear == len(q.values)-1) {
-		return true
-	}
-
-	return false
+	return q.size == len(q.values)
 }
 
 func TestCircularQueue(t *testing.T) {
