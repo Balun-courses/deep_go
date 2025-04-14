@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 	"unsafe"
 
@@ -10,14 +9,14 @@ import (
 
 // go test -v homework_test.go
 
-func ToLittleEndian(number uint32) uint32 {
-	return ((number & 0xFF000000) >> 24) |
-		((number & 0x00FF0000) >> 8) |
-		((number & 0x0000FF00) << 8) |
-		((number & 0x000000FF) << 24)
-}
+// func ToLittleEndian(number uint32) uint32 {
+// 	return ((number & 0xFF000000) >> 24) |
+// 		((number & 0x00FF0000) >> 8) |
+// 		((number & 0x0000FF00) << 8) |
+// 		((number & 0x000000FF) << 24)
+// }
 
-func TestСonversion(t *testing.T) {
+func TestСonversion32(t *testing.T) {
 	tests := map[string]struct {
 		number uint32
 		result uint32
@@ -46,7 +45,7 @@ func TestСonversion(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			result := ToLittleEndian(test.number)
+			result := ToLittleEndianAnyUint[uint32](test.number)
 			assert.Equal(t, test.result, result)
 		})
 	}
@@ -67,11 +66,8 @@ func ToLittleEndianAnyUint[T uint16 | uint32 | uint64](number T) T {
 		((num & 0x0000000000FF0000) << 24) |
 		((num & 0x00000000FF000000) << 8)
 
-	if size == 2 {
-		result = result >> 48
-	}
-	if size == 4 {
-		result = result >> 32
+	if size < 8 {
+		result = result >> (64 - (size * 8))
 	}
 
 	return T(result)
@@ -108,7 +104,6 @@ func TestСonversion16(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			result := ToLittleEndianAnyUint[uint16](test.number)
 			assert.Equal(t, test.result, result)
-			fmt.Printf("\n%04x\n\n", uint16(result))
 		})
 	}
 }
@@ -144,7 +139,6 @@ func TestСonversion64(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			result := ToLittleEndianAnyUint[uint64](test.number)
 			assert.Equal(t, test.result, result)
-			fmt.Printf("\n%016x\n\n", result)
 		})
 	}
 }
