@@ -11,35 +11,89 @@ import (
 
 type CircularQueue struct {
 	values []int
-	// need to implement
+
+	indexOfLastElement int
+
+	startIndex int
+	endIndex   int
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{} // need to implement
+	return CircularQueue{
+		values:             make([]int, size),
+		indexOfLastElement: size - 1,
+		startIndex:         -1,
+		endIndex:           -1,
+	}
 }
 
 func (q *CircularQueue) Push(value int) bool {
-	return false // need to implement
+	if q.Full() {
+		return false
+	}
+
+	if q.Empty() {
+		q.startIndex = q.incrementIndex(q.startIndex)
+	}
+
+	q.endIndex = q.incrementIndex(q.endIndex)
+	q.values[q.endIndex] = value
+
+	return true
 }
 
 func (q *CircularQueue) Pop() bool {
-	return false // need to implement
+	if q.Empty() {
+		return false
+	}
+
+	if q.startIndex == q.endIndex {
+		q.startIndex = -1
+		q.endIndex = -1
+		return true
+	}
+
+	q.startIndex = q.incrementIndex(q.startIndex)
+
+	return true
 }
 
 func (q *CircularQueue) Front() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+
+	return q.values[q.startIndex]
 }
 
 func (q *CircularQueue) Back() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+
+	return q.values[q.endIndex]
 }
 
 func (q *CircularQueue) Empty() bool {
-	return false // need to implement
+	return q.startIndex == -1 && q.endIndex == -1
 }
 
 func (q *CircularQueue) Full() bool {
-	return false // need to implement
+	if q.Empty() {
+		return false
+	}
+
+	return q.incrementIndex(q.endIndex) == q.startIndex
+}
+
+func (q *CircularQueue) incrementIndex(index int) int {
+	index++
+
+	if index > q.indexOfLastElement {
+		return 0
+	}
+
+	return index
 }
 
 func TestCircularQueue(t *testing.T) {
