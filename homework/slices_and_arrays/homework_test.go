@@ -10,36 +10,63 @@ import (
 // go test -v homework_test.go
 
 type CircularQueue struct {
-	values []int
-	// need to implement
+	values     []int
+	size       int64
+	start, end int64
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{} // need to implement
+	values := make([]int, size)
+	for i := range values {
+		values[i] = -1
+	}
+	return CircularQueue{
+		values: values,
+		size:   int64(size),
+		start:  0,
+		end:    0,
+	}
 }
 
 func (q *CircularQueue) Push(value int) bool {
-	return false // need to implement
+	if q.values[q.end] != -1 {
+		return false
+	}
+
+	q.values[q.end] = value
+	q.end = (q.end + 1) % q.size
+
+	return true
 }
 
 func (q *CircularQueue) Pop() bool {
-	return false // need to implement
+	if q.values[q.start] == -1 {
+		return false
+	}
+
+	q.values[q.start] = -1
+	q.start = (q.start + 1) % q.size
+
+	return true
 }
 
 func (q *CircularQueue) Front() int {
-	return -1 // need to implement
+	return q.values[q.start]
 }
 
 func (q *CircularQueue) Back() int {
-	return -1 // need to implement
+	if q.end-1 < 0 {
+		return q.values[q.size-1]
+	}
+	return q.values[q.end-1]
 }
 
 func (q *CircularQueue) Empty() bool {
-	return false // need to implement
+	return (q.start == q.end) && (q.values[q.start] == -1)
 }
 
 func (q *CircularQueue) Full() bool {
-	return false // need to implement
+	return (q.start == q.end) && (q.values[q.start] != -1)
 }
 
 func TestCircularQueue(t *testing.T) {
