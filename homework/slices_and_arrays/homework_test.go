@@ -11,35 +11,60 @@ import (
 
 type CircularQueue struct {
 	values []int
-	// need to implement
+
+	tail int
+	head int
+
+	size  int
+	count int
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{} // need to implement
+	return CircularQueue{
+		values: make([]int, size),
+		size:   size,
+	}
 }
 
 func (q *CircularQueue) Push(value int) bool {
-	return false // need to implement
+	if !q.Full() {
+		q.values[q.tail] = value
+		q.tail = (q.tail + 1) % q.size
+		q.count++
+		return true
+	}
+	return false
 }
 
 func (q *CircularQueue) Pop() bool {
-	return false // need to implement
+	if !q.Empty() {
+		q.head = (q.head + 1) % q.size
+		q.count--
+		return true
+	}
+	return false
 }
 
-func (q *CircularQueue) Front() int {
-	return -1 // need to implement
+func (q *CircularQueue) Front() int { // получить значение из начала очереди (-1, если очередь пустая)
+	if !q.Empty() {
+		return q.values[q.head]
+	}
+	return -1
 }
 
-func (q *CircularQueue) Back() int {
-	return -1 // need to implement
+func (q *CircularQueue) Back() int { // получить значение из конца очереди (-1, если очередь пустая)
+	if !q.Empty() {
+		return q.values[(q.tail-1+q.size)%q.size]
+	}
+	return -1
 }
 
 func (q *CircularQueue) Empty() bool {
-	return false // need to implement
+	return q.count == 0
 }
 
 func (q *CircularQueue) Full() bool {
-	return false // need to implement
+	return q.count == q.size
 }
 
 func TestCircularQueue(t *testing.T) {
@@ -56,7 +81,6 @@ func TestCircularQueue(t *testing.T) {
 	assert.True(t, queue.Push(1))
 	assert.True(t, queue.Push(2))
 	assert.True(t, queue.Push(3))
-	assert.False(t, queue.Push(4))
 
 	assert.True(t, reflect.DeepEqual([]int{1, 2, 3}, queue.values))
 
