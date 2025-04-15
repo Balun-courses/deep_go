@@ -81,6 +81,7 @@ func TestCircularQueue(t *testing.T) {
 	assert.True(t, queue.Push(1))
 	assert.True(t, queue.Push(2))
 	assert.True(t, queue.Push(3))
+	assert.False(t, queue.Push(4))
 
 	assert.True(t, reflect.DeepEqual([]int{1, 2, 3}, queue.values))
 
