@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/bits"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,7 +10,7 @@ import (
 // go test -v homework_test.go
 
 func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+	return bits.ReverseBytes32(number)
 }
 
 func TestСonversion(t *testing.T) {
