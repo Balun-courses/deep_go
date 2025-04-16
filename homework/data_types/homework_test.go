@@ -2,14 +2,34 @@ package main
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 )
 
-// go test -v homework_test.go
-
 func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+	return (number&0x000000FF)<<24 |
+		(number&0x0000FF00)<<8 |
+		(number&0x00FF0000)>>8 |
+		(number&0xFF000000)>>24
+}
+
+type Uints interface {
+	~uint16 | ~uint32 | ~uint64
+}
+
+func ToLittleEndianGeneric[T Uints](number T) T {
+	size := int(unsafe.Sizeof(number))
+	var ans T
+
+	currentBytes := unsafe.Slice((*byte)(unsafe.Pointer(&number)), size)
+	ansBytes := unsafe.Slice((*byte)(unsafe.Pointer(&ans)), size)
+
+	for i := 0; i < size; i++ {
+		ansBytes[i] = currentBytes[size-i-1]
+	}
+
+	return ans
 }
 
 func TestСonversion(t *testing.T) {
@@ -41,7 +61,7 @@ func TestСonversion(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			result := ToLittleEndian(test.number)
+			result := ToLittleEndianGeneric(test.number)
 			assert.Equal(t, test.result, result)
 		})
 	}
