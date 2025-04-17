@@ -8,8 +8,31 @@ import (
 
 // go test -v homework_test.go
 
+const (
+	b1 uint32 = 0b00000000_00000000_00000000_11111111
+	b2 uint32 = 0b00000000_00000000_11111111_00000000
+	b3 uint32 = 0b00000000_11111111_00000000_00000000
+	b4 uint32 = 0b11111111_00000000_00000000_00000000
+)
+
+var bs = [4]uint32{b4, b3, b2, b1}
+
 func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+	var ans uint32 = 0
+	for i := 3; i >= 0; i-- {
+		n := bs[i] & number
+		switch i {
+		case 3:
+			ans |= (n << 24)
+		case 2:
+			ans |= n << 8
+		case 1:
+			ans |= n >> 8
+		case 0:
+			ans |= n >> 24
+		}
+	}
+	return ans
 }
 
 func TestСonversion(t *testing.T) {
