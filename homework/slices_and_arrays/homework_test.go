@@ -10,36 +10,57 @@ import (
 // go test -v homework_test.go
 
 type CircularQueue struct {
-	values []int
-	// need to implement
+	values   []int
+	popIdx   uint
+	insIdx   uint
+	currSize int
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{} // need to implement
+	c := CircularQueue{
+		values: make([]int, size),
+	}
+	for i := range c.values {
+		c.values[i] = -1
+	}
+	return c
 }
 
 func (q *CircularQueue) Push(value int) bool {
-	return false // need to implement
+	if q.currSize == len(q.values) {
+		return false
+	}
+	q.currSize++
+	q.values[q.insIdx%uint(len(q.values))] = value
+	q.insIdx++
+	return true
 }
 
 func (q *CircularQueue) Pop() bool {
-	return false // need to implement
+	if q.currSize == 0 {
+		return false
+	}
+	q.currSize--
+	q.values[q.popIdx%uint(len(q.values))] = -1
+	q.popIdx++
+	return true
 }
 
 func (q *CircularQueue) Front() int {
-	return -1 // need to implement
+	return q.values[q.popIdx%uint(len(q.values))]
 }
 
 func (q *CircularQueue) Back() int {
-	return -1 // need to implement
+	idx := q.insIdx - 1
+	return q.values[idx%uint(len(q.values))]
 }
 
 func (q *CircularQueue) Empty() bool {
-	return false // need to implement
+	return q.currSize == 0
 }
 
 func (q *CircularQueue) Full() bool {
-	return false // need to implement
+	return q.currSize == len(q.values)
 }
 
 func TestCircularQueue(t *testing.T) {
