@@ -9,32 +9,117 @@ import (
 
 // go test -v homework_test.go
 
-type OrderedMap struct {
-	// need to implement
+type node struct {
+	left, right *node
+	key, value  int
 }
 
-func NewOrderedMap() OrderedMap {
-	return OrderedMap{} // need to implement
+type OrderedMap struct {
+	root *node
+	size int
+}
+
+func NewOrderedMap() *OrderedMap {
+	return &OrderedMap{}
 }
 
 func (m *OrderedMap) Insert(key, value int) {
-	// need to implement
+	var parent *node
+	curr := m.root
+	for curr != nil {
+		parent = curr
+		switch {
+		case key < curr.key:
+			curr = curr.left
+		case key > curr.key:
+			curr = curr.right
+		default: // Key exists, update value
+			curr.value = value
+			return
+		}
+	}
+
+	newNode := &node{key: key, value: value}
+	if parent == nil { // Tree was empty
+		m.root = newNode
+	} else if key < parent.key {
+		parent.left = newNode
+	} else {
+		parent.right = newNode
+	}
+	m.size++
+}
+
+func findMin(n *node) *node {
+	for n.left != nil {
+		n = n.left
+	}
+	return n
+}
+
+func deleteNode(n *node, key int) (*node, bool) {
+	if n == nil {
+		return nil, false
+	}
+
+	deleted := false
+	if key < n.key {
+		n.left, deleted = deleteNode(n.left, key)
+	} else if key > n.key {
+		n.right, deleted = deleteNode(n.right, key)
+	} else {
+		deleted = true
+		if n.left == nil {
+			return n.right, true
+		}
+		if n.right == nil {
+			return n.left, true
+		}
+
+		minRight := findMin(n.right)
+		n.key = minRight.key
+		n.value = minRight.value
+		n.right, _ = deleteNode(n.right, minRight.key)
+	}
+	return n, deleted
 }
 
 func (m *OrderedMap) Erase(key int) {
-	// need to implement
+	if newRoot, deleted := deleteNode(m.root, key); deleted {
+		m.root = newRoot
+		m.size--
+	}
 }
 
 func (m *OrderedMap) Contains(key int) bool {
-	return false // need to implement
+	curr := m.root
+	for curr != nil {
+		switch {
+		case key < curr.key:
+			curr = curr.left
+		case key > curr.key:
+			curr = curr.right
+		default:
+			return true
+		}
+	}
+	return false
 }
 
 func (m *OrderedMap) Size() int {
-	return 0 // need to implement
+	return m.size
 }
 
 func (m *OrderedMap) ForEach(action func(int, int)) {
-	// need to implement
+	traverse(m.root, action)
+}
+
+func traverse(n *node, action func(int, int)) {
+	if n != nil {
+		traverse(n.left, action)
+		action(n.key, n.value)
+		traverse(n.right, action)
+	}
 }
 
 func TestCircularQueue(t *testing.T) {
