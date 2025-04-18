@@ -19,8 +19,8 @@ type OrderedMap struct {
 	size int
 }
 
-func NewOrderedMap() *OrderedMap {
-	return &OrderedMap{}
+func NewOrderedMap() OrderedMap {
+	return OrderedMap{}
 }
 
 func (m *OrderedMap) Insert(key, value int) {
