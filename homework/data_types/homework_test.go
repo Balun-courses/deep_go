@@ -2,14 +2,26 @@ package main
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 )
 
+type Number interface {
+	uint16 | uint32 | uint64
+}
+
 // go test -v homework_test.go
 
-func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+func ToLittleEndian[T Number](number T) T {
+	n := int(unsafe.Sizeof(number))
+	lastIndex := n - 1
+	p := unsafe.Pointer(&number)
+	for i := 0; i < n/2; i++ {
+		*(*int8)(unsafe.Add(p, i)), *(*int8)(unsafe.Add(p, lastIndex)) = *(*int8)(unsafe.Add(p, lastIndex)), *(*int8)(unsafe.Add(p, i))
+		lastIndex--
+	}
+	return number
 }
 
 func TestСonversion(t *testing.T) {
