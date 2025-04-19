@@ -19,6 +19,9 @@ type CircularQueue[T Number] struct {
 }
 
 func NewCircularQueue[T Number](size int) CircularQueue[T] {
+	if size <= 0 {
+		return CircularQueue[T]{}
+	}
 	v := make([]T, size)
 	return CircularQueue[T]{values: v, front: -1, rear: -1}
 }
