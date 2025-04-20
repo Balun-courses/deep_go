@@ -11,27 +11,67 @@ import (
 type COWBuffer struct {
 	data []byte
 	refs *int
-	// need to implement
 }
 
 func NewCOWBuffer(data []byte) COWBuffer {
-	return COWBuffer{} // need to implement
+	refs := 1
+
+	return COWBuffer{
+		data: data,
+		refs: &refs,
+	}
 }
 
+// создать новую копию буфера
 func (b *COWBuffer) Clone() COWBuffer {
-	return COWBuffer{} // need to implement
+	*b.refs++
+
+	return COWBuffer{
+		data: b.data,
+		refs: b.refs,
+	}
 }
 
+// перестать использовать копию буффера
 func (b *COWBuffer) Close() {
-	// need to implement
+	*b.refs--
+	if *b.refs == 0 {
+		b.data = nil
+	}
 }
 
+// изменить определенный байт в буффере
 func (b *COWBuffer) Update(index int, value byte) bool {
-	return false // need to implement
+	if index < 0 {
+		return false
+	}
+	if index > len(b.data)-1 {
+		return false
+	}
+	if *b.refs == 1 {
+		b.data[index] = value
+		return true
+	}
+
+	// копируем буфер перед изменением, т.к. на него ссылаются другие объекты
+	dataCopy := make([]byte, len(b.data))
+	copy(dataCopy, b.data)
+	dataCopy[index] = value
+	b.data = dataCopy
+
+	// уменьшаем кол-во ссылающихся объектов
+	*b.refs--
+
+	// на копию буфера ссылается только один объект
+	refs := 1
+	b.refs = &refs
+
+	return true
 }
 
+// сконвертировать буффер в строку
 func (b *COWBuffer) String() string {
-	return "" // need to implement
+	return unsafe.String(&b.data[0], len(b.data))
 }
 
 func TestCOWBuffer(t *testing.T) {
