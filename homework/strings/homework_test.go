@@ -8,32 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type COWBuffer struct {
-	data []byte
-	refs *int
-	// need to implement
-}
-
-func NewCOWBuffer(data []byte) COWBuffer {
-	return COWBuffer{} // need to implement
-}
-
-func (b *COWBuffer) Clone() COWBuffer {
-	return COWBuffer{} // need to implement
-}
-
-func (b *COWBuffer) Close() {
-	// need to implement
-}
-
-func (b *COWBuffer) Update(index int, value byte) bool {
-	return false // need to implement
-}
-
-func (b *COWBuffer) String() string {
-	return "" // need to implement
-}
-
 func TestCOWBuffer(t *testing.T) {
 	data := []byte{'a', 'b', 'c', 'd'}
 	buffer := NewCOWBuffer(data)
@@ -71,4 +45,29 @@ func TestCOWBuffer(t *testing.T) {
 	assert.Equal(t, unsafe.SliceData(previous), unsafe.SliceData(current))
 
 	copy2.Close()
+}
+
+func TestCOWBufferGenericInt(t *testing.T) {
+	data := []int{1, 2, 3, 4}
+	buffer := NewCOWBufferGen(data)
+	defer buffer.Close()
+
+	copy1 := buffer.Clone()
+	copy2 := buffer.Clone()
+
+	assert.True(t, reflect.DeepEqual(buffer.data, copy1.data))
+	assert.True(t, reflect.DeepEqual(copy1.data, copy2.data))
+
+	buffer.Update(0, 100)
+
+	assert.True(t, reflect.DeepEqual(buffer.data, []int{100, 2, 3, 4}))
+	assert.True(t, reflect.DeepEqual(copy1.data, []int{1, 2, 3, 4}))
+	assert.True(t, reflect.DeepEqual(copy2.data, []int{1, 2, 3, 4}))
+
+	copy1.Close()
+
+	old := copy2.data
+	copy2.Update(1, 200)
+
+	assert.Equal(t, old, copy2.data)
 }
