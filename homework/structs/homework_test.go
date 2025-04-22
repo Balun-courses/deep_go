@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/stretchr/testify/require"
 	"math"
 	"testing"
 	"unsafe"
@@ -8,83 +9,145 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	maxNameLen           = 42
+	maxCoord      int    = 2_000_000_000
+	maxGold       uint32 = 2_000_000_000
+	maxMana       uint32 = 1_000
+	maxHealth     uint32 = 1_000
+	maxRespect    uint8  = 10
+	maxStrength   uint8  = 10
+	maxExperience uint8  = 10
+	maxLevel      uint8  = 10
+)
+
 type Option func(*GamePerson)
 
 func WithName(name string) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.name = name[0:maxNameLen]
 	}
 }
 
 func WithCoordinates(x, y, z int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		if x > maxCoord {
+			person.x = maxCoord
+		} else if x < -maxCoord {
+			person.x = -maxCoord
+		} else {
+			person.x = x
+		}
+
+		if y > maxCoord {
+			person.y = maxCoord
+		} else if y < -maxCoord {
+			person.y = -maxCoord
+		} else {
+			person.y = y
+		}
+
+		if z > maxCoord {
+			person.z = maxCoord
+		} else if z < -maxCoord {
+			person.z = -maxCoord
+		} else {
+			person.z = z
+		}
 	}
 }
 
-func WithGold(gold int) func(*GamePerson) {
+func WithGold(gold uint32) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.gold = gold
+
+		if gold > maxGold {
+			person.gold = maxGold
+		}
 	}
 }
 
-func WithMana(mana int) func(*GamePerson) {
+func WithMana(mana uint32) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.mana = mana
+
+		if mana > maxMana {
+			person.mana = maxMana
+		}
 	}
 }
 
-func WithHealth(health int) func(*GamePerson) {
+func WithHealth(health uint32) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.health = health
+
+		if health > maxHealth {
+			person.health = maxHealth
+		}
 	}
 }
 
-func WithRespect(respect int) func(*GamePerson) {
+func WithRespect(respect uint8) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.respect = respect
+
+		if respect > maxRespect {
+			person.respect = maxRespect
+		}
 	}
 }
 
-func WithStrength(strength int) func(*GamePerson) {
+func WithStrength(strength uint8) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.strength = strength
+
+		if strength > maxStrength {
+			person.strength = maxStrength
+		}
 	}
 }
 
-func WithExperience(experience int) func(*GamePerson) {
+func WithExperience(experience uint8) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.experience = experience
+
+		if experience > maxExperience {
+			person.experience = maxExperience
+		}
 	}
 }
 
-func WithLevel(level int) func(*GamePerson) {
+func WithLevel(level uint8) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.level = level
+
+		if level > maxLevel {
+			person.level = maxLevel
+		}
 	}
 }
 
 func WithHouse() func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.hasHouse = true
 	}
 }
 
 func WithGun() func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.hasGun = true
 	}
 }
 
 func WithFamily() func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.hasFamily = true
 	}
 }
 
-func WithType(personType int) func(*GamePerson) {
+func WithType(personType uint8) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.personType = personType
 	}
 }
 
@@ -95,91 +158,93 @@ const (
 )
 
 type GamePerson struct {
-	// need to implement
+	name       string
+	x, y, z    int
+	gold       uint32
+	mana       uint32
+	health     uint32
+	respect    uint8
+	strength   uint8
+	experience uint8
+	level      uint8
+	personType uint8
+	hasHouse   bool
+	hasGun     bool
+	hasFamily  bool
 }
 
 func NewGamePerson(options ...Option) GamePerson {
-	// need to implement
-	return GamePerson{}
+	person := GamePerson{}
+
+	for _, option := range options {
+		option(&person)
+	}
+
+	return person
 }
 
 func (p *GamePerson) Name() string {
-	// need to implement
-	return ""
+	return p.name
 }
 
 func (p *GamePerson) X() int {
-	// need to implement
-	return 0
+	return p.x
 }
 
 func (p *GamePerson) Y() int {
-	// need to implement
-	return 0
+	return p.y
 }
 
 func (p *GamePerson) Z() int {
-	// need to implement
-	return 0
+	return p.z
 }
 
-func (p *GamePerson) Gold() int {
-	// need to implement
-	return 0
+func (p *GamePerson) Gold() uint32 {
+	return p.gold
 }
 
-func (p *GamePerson) Mana() int {
-	// need to implement
-	return 0
+func (p *GamePerson) Mana() uint32 {
+	return p.mana
 }
 
-func (p *GamePerson) Health() int {
-	// need to implement
-	return 0
+func (p *GamePerson) Health() uint32 {
+	return p.health
 }
 
-func (p *GamePerson) Respect() int {
-	// need to implement
-	return 0
+func (p *GamePerson) Respect() uint8 {
+	return p.respect
 }
 
-func (p *GamePerson) Strength() int {
-	// need to implement
-	return 0
+func (p *GamePerson) Strength() uint8 {
+	return p.strength
 }
 
-func (p *GamePerson) Experience() int {
-	// need to implement
-	return 0
+func (p *GamePerson) Experience() uint8 {
+	return p.experience
 }
 
-func (p *GamePerson) Level() int {
-	// need to implement
-	return 0
+func (p *GamePerson) Level() uint8 {
+	return p.level
 }
 
 func (p *GamePerson) HasHouse() bool {
-	// need to implement
-	return false
+	return p.hasHouse
 }
 
 func (p *GamePerson) HasGun() bool {
-	// need to implement
-	return false
+	return p.hasGun
 }
 
-func (p *GamePerson) HasFamilty() bool {
-	// need to implement
-	return false
+func (p *GamePerson) HasFamily() bool {
+	return p.hasFamily
 }
 
-func (p *GamePerson) Type() int {
-	// need to implement
-	return 0
+func (p *GamePerson) Type() uint8 {
+	return p.personType
 }
 
 func TestGamePerson(t *testing.T) {
-	assert.LessOrEqual(t, unsafe.Sizeof(GamePerson{}), uintptr(64))
+	require.LessOrEqual(t, unsafe.Sizeof(GamePerson{}), uintptr(64))
 
 	const x, y, z = math.MinInt32, math.MaxInt32, 0
 	const name = "aaaaaaaaaaaaa_bbbbbbbbbbbbb_cccccccccccccc"
@@ -209,18 +274,18 @@ func TestGamePerson(t *testing.T) {
 
 	person := NewGamePerson(options...)
 	assert.Equal(t, name, person.Name())
-	assert.Equal(t, x, person.X())
-	assert.Equal(t, y, person.Y())
+	assert.Equal(t, -maxCoord, person.X())
+	assert.Equal(t, maxCoord, person.Y())
 	assert.Equal(t, z, person.Z())
-	assert.Equal(t, gold, person.Gold())
-	assert.Equal(t, mana, person.Mana())
-	assert.Equal(t, health, person.Health())
-	assert.Equal(t, respect, person.Respect())
-	assert.Equal(t, strength, person.Strength())
-	assert.Equal(t, experience, person.Experience())
-	assert.Equal(t, level, person.Level())
+	assert.Equal(t, maxGold, person.Gold())
+	assert.Equal(t, uint32(mana), person.Mana())
+	assert.Equal(t, uint32(health), person.Health())
+	assert.Equal(t, uint8(respect), person.Respect())
+	assert.Equal(t, uint8(strength), person.Strength())
+	assert.Equal(t, uint8(experience), person.Experience())
+	assert.Equal(t, uint8(level), person.Level())
 	assert.True(t, person.HasHouse())
-	assert.True(t, person.HasFamilty())
+	assert.True(t, person.HasFamily())
 	assert.False(t, person.HasGun())
-	assert.Equal(t, personType, person.Type())
+	assert.Equal(t, uint8(personType), person.Type())
 }
