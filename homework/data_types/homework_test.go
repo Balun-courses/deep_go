@@ -8,8 +8,17 @@ import (
 
 // go test -v homework_test.go
 
+/*
+литл эндиан это 01 02 03 04, начало с 04
+биг это 04 03 02 01, начало с 04
+
+*/
+
 func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+	return ((number & 0xff000000) >> 24) |
+		((number & 0x00ff0000) >> 8) |
+		((number & 0x0000ff00) << 8) |
+		((number & 0x000000ff) << 24)
 }
 
 func TestСonversion(t *testing.T) {
