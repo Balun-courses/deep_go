@@ -10,34 +10,147 @@ import (
 // go test -v homework_test.go
 
 type OrderedMap struct {
-	// need to implement
+	root *Node
+	size int
+}
+
+type Node struct {
+	left, right *Node
+	key, value  int
 }
 
 func NewOrderedMap() OrderedMap {
-	return OrderedMap{} // need to implement
+	return OrderedMap{}
 }
 
+// добавить элемент в словарь
 func (m *OrderedMap) Insert(key, value int) {
-	// need to implement
+	var parent *Node
+	newNode := Node{
+		key:   key,
+		value: value,
+	}
+	if m.root == nil {
+		m.root = &newNode
+		m.size++
+		return
+	}
+
+	x := m.root
+	for x != nil {
+		if x.key == key {
+			x = &newNode
+			return
+		}
+		parent = x
+		if key < x.key {
+			x = x.left
+		} else {
+			x = x.right
+		}
+	}
+
+	if key < parent.key {
+		parent.left = &newNode
+	} else {
+		parent.right = &newNode
+	}
+	m.size++
 }
 
+// удалить элемент из словари
 func (m *OrderedMap) Erase(key int) {
-	// need to implement
+	x := m.root
+	var parent *Node
+	for x != nil {
+		if x.key == key {
+			break
+		}
+		parent = x
+		if key < x.key {
+			x = x.left
+		} else {
+			x = x.right
+		}
+	}
+
+	if x == nil {
+		return
+	}
+
+	m.size--
+	if x.right == nil {
+		if parent == nil {
+			m.root = x.left
+			return
+		}
+		if x == parent.left {
+			parent.left = x.left
+			return
+		}
+		parent.right = x.left
+		return
+	}
+
+	leftMost := x.right
+	parent = nil
+	for leftMost.left != nil {
+		parent = leftMost
+		leftMost = leftMost.left
+	}
+	if parent != nil {
+		parent.left = leftMost.right
+	} else {
+		x.right = leftMost.right
+	}
+	x.key = leftMost.key
+	x.value = leftMost.value
+
 }
 
+// проверить существование элемента в словаре
 func (m *OrderedMap) Contains(key int) bool {
-	return false // need to implement
+	x := m.root
+	for x != nil {
+		if x.key == key {
+			return true
+		}
+		if key < x.key {
+			x = x.left
+		} else {
+			x = x.right
+		}
+	}
+
+	return false
 }
 
+// получить количество элементов в словаре
 func (m *OrderedMap) Size() int {
-	return 0 // need to implement
+	return m.size
 }
 
+// применить функцию к каждому элементу словаря от меньшего к большему
 func (m *OrderedMap) ForEach(action func(int, int)) {
-	// need to implement
+	if m.root == nil {
+		return
+	}
+	m.forEach(m.root, action)
 }
 
-func TestCircularQueue(t *testing.T) {
+// Центрированный обход (in order, LNR)
+// L - левый узел (left), R - правый узел (right), N - родительский узел (node)
+func (m *OrderedMap) forEach(n *Node, action func(int, int)) {
+	if n.left != nil {
+		m.forEach(n.left, action)
+	}
+	action(n.key, n.value)
+	if n.right != nil {
+		m.forEach(n.right, action)
+	}
+}
+
+func TestOrderedMap(t *testing.T) {
 	data := NewOrderedMap()
 	assert.Zero(t, data.Size())
 
