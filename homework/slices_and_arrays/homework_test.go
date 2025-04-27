@@ -11,35 +11,101 @@ import (
 
 type CircularQueue struct {
 	values []int
-	// need to implement
+
+	indexOfLastElement int
+
+	startIndex int
+
+	numberOfElements int
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{} // need to implement
+	return CircularQueue{
+		values:             make([]int, size),
+		indexOfLastElement: size - 1,
+		startIndex:         0,
+		numberOfElements:   0,
+	}
 }
 
 func (q *CircularQueue) Push(value int) bool {
-	return false // need to implement
+	if q.Full() {
+		return false
+	}
+
+	firstNotEngagedIndex := q.sumIndex(q.startIndex, q.numberOfElements)
+	q.values[firstNotEngagedIndex] = value
+
+	q.numberOfElements++
+
+	return true
 }
 
 func (q *CircularQueue) Pop() bool {
-	return false // need to implement
+	if q.Empty() {
+		return false
+	}
+
+	q.startIndex = q.incrementIndex(q.startIndex)
+
+	q.numberOfElements--
+
+	return true
 }
 
 func (q *CircularQueue) Front() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+
+	return q.values[q.startIndex]
 }
 
 func (q *CircularQueue) Back() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+
+	firstNotEngagedIndex := q.sumIndex(q.startIndex, q.numberOfElements)
+	return q.values[q.decrementIndex(firstNotEngagedIndex)]
 }
 
 func (q *CircularQueue) Empty() bool {
-	return false // need to implement
+	return q.numberOfElements == 0
 }
 
 func (q *CircularQueue) Full() bool {
-	return false // need to implement
+	return q.numberOfElements == len(q.values)
+}
+
+func (q *CircularQueue) incrementIndex(index int) int {
+	index++
+
+	if index > q.indexOfLastElement {
+		return 0
+	}
+
+	return index
+}
+
+func (q *CircularQueue) decrementIndex(index int) int {
+	index--
+
+	if index < 0 {
+		return q.indexOfLastElement
+	}
+
+	return index
+}
+
+func (q *CircularQueue) sumIndex(index int, valueToAdd int) int {
+	index += (valueToAdd % len(q.values))
+
+	if index > q.indexOfLastElement {
+		return index - len(q.values)
+	}
+
+	return index
 }
 
 func TestCircularQueue(t *testing.T) {
