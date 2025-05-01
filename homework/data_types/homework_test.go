@@ -11,7 +11,7 @@ import (
 func ToLittleEndian(number uint32) uint32 {
 	var result uint32
 
-	byteSize := uint32(2 << 7)
+	byteSize := uint32(1 << 8)
 	for i := 0; i < 4; i++ {
 		result *= byteSize
 		result += number % byteSize
