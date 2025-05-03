@@ -10,36 +10,67 @@ import (
 // go test -v homework_test.go
 
 type CircularQueue struct {
-	values []int
-	// need to implement
+	values    []int
+	startIdx  int  // Индекс первого элемента очереди
+	endIdx    int  // Индекс последнего элемента + 1 (куда надо вставлять новый элемент)
+	haveElems bool // Есть ли в очереди хотя бы один элемент
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{} // need to implement
+	return CircularQueue{
+		values: make([]int, size),
+	}
 }
 
 func (q *CircularQueue) Push(value int) bool {
-	return false // need to implement
+	if q.Full() {
+		return false
+	}
+
+	q.haveElems = true
+	q.values[q.endIdx] = value
+	q.endIdx = (q.endIdx + 1) % len(q.values)
+
+	return true
 }
 
 func (q *CircularQueue) Pop() bool {
-	return false // need to implement
+	if q.Empty() {
+		return false
+	}
+
+	q.startIdx = (q.startIdx + 1) % len(q.values)
+
+	if q.startIdx == q.endIdx {
+		q.haveElems = false
+	}
+
+	return true
 }
 
 func (q *CircularQueue) Front() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+
+	return q.values[q.startIdx]
 }
 
 func (q *CircularQueue) Back() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+
+	// добавляем (len(q.values), чтобы не было отрицательного индекса
+	return q.values[(len(q.values)+q.endIdx-1)%len(q.values)]
 }
 
 func (q *CircularQueue) Empty() bool {
-	return false // need to implement
+	return !q.haveElems
 }
 
 func (q *CircularQueue) Full() bool {
-	return false // need to implement
+	return q.haveElems && (q.startIdx == q.endIdx)
 }
 
 func TestCircularQueue(t *testing.T) {
