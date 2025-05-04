@@ -7,34 +7,141 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+/*
+type OrderedMap struct { ... }
+
+func NewOrderedMap() OrderedMap                      // создать упорядоченный словарь
+func (m \*OrderedMap) Insert(key, value int)          // добавить элемент в словарь
+func (m \*OrderedMap) Erase(key int)                  // удалить элемент из словари
+func (m \*OrderedMap) Contains(key int) bool          // проверить существование элемента в словаре
+func (m \*OrderedMap) Size() int                      // получить количество элементов в словаре
+func (m \*OrderedMap) ForEach(action func(int, int))  // применить функцию к каждому элементу словаря от меньшего к большему
+*/
+
 // go test -v homework_test.go
 
+type node struct {
+	key   int
+	value int
+	left  *node
+	right *node
+}
+
 type OrderedMap struct {
-	// need to implement
+	root *node
+	size int
 }
 
 func NewOrderedMap() OrderedMap {
-	return OrderedMap{} // need to implement
+	return OrderedMap{}
 }
 
 func (m *OrderedMap) Insert(key, value int) {
-	// need to implement
+	m.root = insert(m.root, key, value, &m.size)
+}
+
+func insert(n *node, key, value int, size *int) *node {
+	if n == nil {
+		*size++
+		return &node{key: key, value: value}
+	}
+
+	switch {
+	case key < n.key:
+		n.left = insert(n.left, key, value, size)
+
+	case key > n.key:
+		n.right = insert(n.right, key, value, size)
+	default:
+		n.value = value
+	}
+	return n
 }
 
 func (m *OrderedMap) Erase(key int) {
-	// need to implement
+	var del bool
+	m.root, del = erase(m.root, key)
+
+	if del {
+		m.size--
+	}
+}
+
+func erase(n *node, key int) (*node, bool) {
+	if n == nil {
+		return nil, false
+	}
+
+	var del bool
+
+	switch {
+	case key < n.key:
+		n.left, del = erase(n.left, key)
+
+	case key > n.key:
+		n.right, del = erase(n.right, key)
+
+	default:
+		del = true
+		if n.left == nil {
+			return n.right, true
+		}
+
+		if n.right == nil {
+			return n.left, true
+		}
+
+		temp := n.right
+		for temp.left != nil {
+			temp = temp.left
+		}
+
+		n.key, n.value = temp.key, temp.value
+		n.right, _ = erase(n.right, temp.key)
+
+	}
+
+	return n, del
+
 }
 
 func (m *OrderedMap) Contains(key int) bool {
-	return false // need to implement
+	return contains(m.root, key)
+}
+
+func contains(n *node, key int) bool {
+	if n == nil {
+		return false
+	}
+
+	switch {
+	case key < n.key:
+		return contains(n.left, key)
+	case key > n.key:
+		return contains(n.right, key)
+	case key == n.key:
+		return true
+	default:
+		return false
+	}
 }
 
 func (m *OrderedMap) Size() int {
-	return 0 // need to implement
+	return m.size
 }
 
 func (m *OrderedMap) ForEach(action func(int, int)) {
-	// need to implement
+	forEach(m.root, action)
+}
+
+func forEach(n *node, action func(int, int)) {
+	if n == nil {
+		return
+	}
+
+	forEach(n.left, action)
+	action(n.key, n.value)
+	forEach(n.right, action)
 }
 
 func TestCircularQueue(t *testing.T) {
