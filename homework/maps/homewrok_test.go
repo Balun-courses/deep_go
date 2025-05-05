@@ -1,40 +1,142 @@
 package main
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"reflect"
 )
 
 // go test -v homework_test.go
 
+type Node struct {
+	key   int
+	value int
+	left  *Node
+	right *Node
+}
+
 type OrderedMap struct {
-	// need to implement
+	root *Node
+	size int
 }
 
 func NewOrderedMap() OrderedMap {
-	return OrderedMap{} // need to implement
+	return OrderedMap{}
 }
 
 func (m *OrderedMap) Insert(key, value int) {
-	// need to implement
+	if m.root == nil {
+		m.root = &Node{key: key, value: value}
+		m.size++
+		return
+	}
+	_, added := insert(m.root, key, value)
+	if added {
+		m.size++
+	}
 }
 
 func (m *OrderedMap) Erase(key int) {
-	// need to implement
+	if m.root == nil {
+		return
+	}
+	node := erase(m.root, key)
+	if node != nil {
+		m.size--
+	}
+
 }
 
 func (m *OrderedMap) Contains(key int) bool {
-	return false // need to implement
+	if m.root == nil {
+		return false
+	}
+	return find(m.root, key) != nil
 }
 
 func (m *OrderedMap) Size() int {
-	return 0 // need to implement
+	return m.size
 }
 
 func (m *OrderedMap) ForEach(action func(int, int)) {
-	// need to implement
+	if m.root == nil {
+		return
+	}
+	var traverse func(node *Node)
+	traverse = func(node *Node) {
+		if node == nil {
+			return
+		}
+		traverse(node.left)
+		action(node.key, node.value)
+		traverse(node.right)
+	}
+	traverse(m.root)
+}
+
+func insert(node *Node, key, value int) (*Node, bool) {
+	if node == nil {
+		return &Node{key: key, value: value}, true
+	}
+	if node.key == key {
+		node.value = value
+		return node, false
+	}
+	var added bool
+	if key < node.key {
+		node.left, added = insert(node.left, key, value)
+	} else {
+		node.right, added = insert(node.right, key, value)
+	}
+
+	return node, added
+}
+
+func find(node *Node, key int) *Node {
+	if node == nil {
+		return nil
+	}
+	if node.key == key {
+		return node
+	}
+	if key < node.key {
+		return find(node.left, key)
+	}
+	return find(node.right, key)
+}
+
+func erase(node *Node, key int) *Node {
+	if node == nil {
+		return nil
+	}
+
+	if key < node.key {
+		node.left = erase(node.left, key)
+		return node
+	}
+	if key > node.key {
+		node.right = erase(node.right, key)
+		return node
+	}
+
+	if node.left == nil {
+		return node.right
+	}
+
+	if node.right == nil {
+		return node.left
+	}
+
+	minNode := node.right
+	for minNode.left != nil {
+		minNode = minNode.left
+	}
+
+	node.key, node.value = minNode.key, minNode.value
+	node.right = erase(node.right, minNode.key)
+
+	return node
 }
 
 func TestCircularQueue(t *testing.T) {
