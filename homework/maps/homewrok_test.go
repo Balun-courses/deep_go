@@ -10,31 +10,151 @@ import (
 // go test -v homework_test.go
 
 type OrderedMap struct {
-	// need to implement
+	Head  *Node
+	Count int
+}
+
+type Node struct {
+	Key    int
+	Value  int
+	Parent *Node
+	Left   *Node
+	Right  *Node
+}
+
+func (n *Node) Insert(key, value int) (isNewNode bool) {
+	if key == n.Key {
+		n.Value = value
+		return false
+	}
+
+	if key < n.Key {
+		if n.Left == nil {
+			n.Left = &Node{Key: key, Value: value, Parent: n}
+			return true
+		}
+		return n.Left.Insert(key, value)
+	} else {
+		if n.Right == nil {
+			n.Right = &Node{Key: key, Value: value, Parent: n}
+			return true
+		}
+		return n.Right.Insert(key, value)
+	}
+}
+
+func (n *Node) Find(key int) *Node {
+	if n.Key == key {
+		return n
+	}
+
+	if n.Left != nil && key < n.Key {
+		return n.Left.Find(key)
+	}
+
+	if n.Right != nil && key > n.Key {
+		return n.Right.Find(key)
+	}
+
+	return nil
+}
+
+func (n *Node) Erase(key int) (deletedNode bool) {
+	node := n.Find(key)
+	if node == nil {
+		return false
+	}
+
+	var newNode *Node
+	if node.Left == nil && node.Right == nil {
+		// конечная нода - просто убираем
+		newNode = nil
+	} else if node.Left != nil && node.Right == nil {
+		// есть лист слева, нет справа - просто подменяем
+		newNode = node.Left
+	} else if node.Left == nil && node.Right != nil {
+		// то же самое как с левым, только с правым
+		newNode = node.Right
+	} else {
+		// есть и правая и левая, тогда берем меньшую из правых
+		newNode = node.Right
+		for newNode.Left != nil {
+			newNode = newNode.Left
+		}
+		newNode.Parent.Left = nil
+
+		newNode.Left = node.Left
+		newNode.Right = node.Right
+	}
+
+	if newNode != nil {
+		newNode.Parent = node.Parent
+	}
+
+	if node.Parent.Left != nil && node.Parent.Left.Key == key {
+		node.Parent.Left = newNode
+	} else {
+		node.Parent.Right = newNode
+	}
+
+	return true
+}
+
+func (n *Node) ForEach(action func(int, int)) {
+	if n.Left != nil {
+		n.Left.ForEach(action)
+	}
+
+	action(n.Key, n.Value)
+
+	if n.Right != nil {
+		n.Right.ForEach(action)
+	}
 }
 
 func NewOrderedMap() OrderedMap {
-	return OrderedMap{} // need to implement
+	return OrderedMap{}
 }
 
 func (m *OrderedMap) Insert(key, value int) {
-	// need to implement
+	if m.Head == nil {
+		m.Head = &Node{Key: key, Value: value}
+		m.Count = 1
+		return
+	}
+	if m.Head.Insert(key, value) {
+		m.Count++
+	}
 }
 
 func (m *OrderedMap) Erase(key int) {
-	// need to implement
+	if m.Head == nil {
+		return
+	}
+	if m.Head.Erase(key) {
+		m.Count--
+	}
 }
 
 func (m *OrderedMap) Contains(key int) bool {
-	return false // need to implement
+	if m.Head == nil {
+		return false
+	}
+	return m.Head.Find(key) != nil
 }
 
 func (m *OrderedMap) Size() int {
-	return 0 // need to implement
+	if m.Head == nil {
+		return 0
+	}
+	return m.Count
 }
 
 func (m *OrderedMap) ForEach(action func(int, int)) {
-	// need to implement
+	if m.Head == nil {
+		return
+	}
+	m.Head.ForEach(action)
 }
 
 func TestCircularQueue(t *testing.T) {
