@@ -12,25 +12,89 @@ type Task struct {
 }
 
 type Scheduler struct {
-	// need to implement
+	Tasks   map[int]Task
+	MaxHeap []Task
 }
 
 func NewScheduler() Scheduler {
-	// need to implement
-	return Scheduler{}
+	return Scheduler{
+		Tasks:   make(map[int]Task),
+		MaxHeap: make([]Task, 0),
+	}
 }
 
 func (s *Scheduler) AddTask(task Task) {
-	// need to implement
+	s.Tasks[task.Identifier] = task
+	s.MaxHeap = append(s.MaxHeap, task)
+
+	s.bubbleUp(len(s.MaxHeap) - 1)
 }
 
 func (s *Scheduler) ChangeTaskPriority(taskID int, newPriority int) {
-	// need to implement
+	task, exists := s.Tasks[taskID]
+	if !exists || task.Priority == newPriority {
+		return
+	}
+
+	oldPriority := task.Priority
+	task.Priority = newPriority
+	s.Tasks[taskID] = task
+
+	for k, v := range s.MaxHeap {
+		if v.Identifier == taskID {
+			s.MaxHeap[k] = s.Tasks[taskID]
+			if oldPriority < newPriority {
+				s.bubbleUp(k)
+			} else {
+				s.bubbleDown(k)
+			}
+		}
+	}
+}
+
+func (s *Scheduler) bubbleUp(k int) {
+	for k > 0 {
+		parent := (k - 1) / 2
+		if s.MaxHeap[parent].Priority < s.MaxHeap[k].Priority {
+			s.MaxHeap[parent], s.MaxHeap[k] = s.MaxHeap[k], s.MaxHeap[parent]
+			k = parent
+			continue
+		}
+
+		break
+	}
+}
+
+func (s *Scheduler) bubbleDown(k int) {
+	for k < len(s.MaxHeap) {
+		leftChild := k*2 + 1
+		rightChild := k*2 + 2
+
+		if leftChild < len(s.MaxHeap) && s.MaxHeap[leftChild].Priority > s.MaxHeap[k].Priority {
+			s.MaxHeap[leftChild], s.MaxHeap[k] = s.MaxHeap[k], s.MaxHeap[leftChild]
+			k = leftChild
+			continue
+		}
+
+		if rightChild < len(s.MaxHeap) && s.MaxHeap[rightChild].Priority > s.MaxHeap[k].Priority {
+			s.MaxHeap[rightChild], s.MaxHeap[k] = s.MaxHeap[k], s.MaxHeap[rightChild]
+			k = rightChild
+			continue
+		}
+
+		break
+	}
 }
 
 func (s *Scheduler) GetTask() Task {
-	// need to implement
-	return Task{}
+	task := s.MaxHeap[0]
+	s.MaxHeap[0], s.MaxHeap[len(s.MaxHeap)-1] = s.MaxHeap[len(s.MaxHeap)-1], s.MaxHeap[0]
+	s.MaxHeap = s.MaxHeap[:len(s.MaxHeap)-1]
+	delete(s.Tasks, task.Identifier)
+
+	s.bubbleDown(0)
+
+	return task
 }
 
 func TestTrace(t *testing.T) {
@@ -53,8 +117,10 @@ func TestTrace(t *testing.T) {
 	task = scheduler.GetTask()
 	assert.Equal(t, task4, task)
 
-	scheduler.ChangeTaskPriority(1, 100)
+	newPriority := 100
+	scheduler.ChangeTaskPriority(1, newPriority)
 
+	task1.Priority = newPriority
 	task = scheduler.GetTask()
 	assert.Equal(t, task1, task)
 
