@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -9,7 +10,10 @@ import (
 // go test -v homework_test.go
 
 func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+	return ((number & 0xFF) << 24) |
+		(((number >> 8) & 0xFF) << 16) |
+		(((number >> 16) & 0xFF) << 8) |
+		((number >> 24) & 0xFF)
 }
 
 func TestСonversion(t *testing.T) {
@@ -45,4 +49,31 @@ func TestСonversion(t *testing.T) {
 			assert.Equal(t, test.result, result)
 		})
 	}
+}
+
+func ToLittleEndianGeneric[T uint16 | uint32 | uint64](number T) T {
+	intLen := unsafe.Sizeof(number)
+
+	if intLen == 2 {
+		return ((number & 0xFF) << 8) |
+			((number >> 8) & 0xFF)
+	}
+	if intLen == 4 {
+		return ((number & 0xFF) << 24) |
+			(((number >> 8) & 0xFF) << 16) |
+			(((number >> 16) & 0xFF) << 8) |
+			((number >> 24) & 0xFF)
+	}
+	if intLen == 8 {
+		return ((number & 0xFF) << 56) |
+			(((number >> 8) & 0xFF) << 48) |
+			(((number >> 16) & 0xFF) << 40) |
+			(((number >> 24) & 0xFF) << 32) |
+			(((number >> 32) & 0xFF) << 24) |
+			(((number >> 40) & 0xFF) << 16) |
+			(((number >> 48) & 0xFF) << 8) |
+			((number >> 56) & 0xFF)
+	}
+
+	return 0
 }
