@@ -8,33 +8,130 @@ import (
 )
 
 // go test -v homework_test.go
-
-type OrderedMap struct {
-	// need to implement
+func NewOrderedMap() OrderedMap {
+	return OrderedMap{}
 }
 
-func NewOrderedMap() OrderedMap {
-	return OrderedMap{} // need to implement
+type OrderedMap struct {
+	root *node
+}
+
+type node struct {
+	key   int
+	value int
+	left  *node
+	right *node
 }
 
 func (m *OrderedMap) Insert(key, value int) {
-	// need to implement
+	m.root = insert(m.root, key, value)
 }
 
 func (m *OrderedMap) Erase(key int) {
-	// need to implement
+	if m.root == nil {
+		return
+	}
+
+	erase(m.root, key)
 }
 
 func (m *OrderedMap) Contains(key int) bool {
-	return false // need to implement
+	if m.root == nil {
+		return false
+	}
+
+	return contains(m.root, key)
 }
 
 func (m *OrderedMap) Size() int {
-	return 0 // need to implement
+	size := 0
+	inorder(m.root, func(_, _ int) {
+		size += 1
+	})
+
+	return size
 }
 
-func (m *OrderedMap) ForEach(action func(int, int)) {
-	// need to implement
+func (m *OrderedMap) ForEach(action func(k, v int)) {
+	inorder(m.root, action)
+}
+
+func contains(n *node, k int) bool {
+	if n == nil {
+		return false
+	}
+	if n.key == k {
+		return true
+	}
+
+	if k < n.key {
+		return contains(n.left, k)
+	} else {
+		return contains(n.right, k)
+	}
+}
+
+func insert(n *node, k, v int) *node {
+	if n == nil {
+		return &node{
+			key:   k,
+			value: v,
+			left:  nil,
+			right: nil,
+		}
+	}
+	if n.key == k {
+		n.value = v
+	}
+
+	if k < n.key {
+		n.left = insert(n.left, k, v)
+	}
+	if k > n.key {
+		n.right = insert(n.right, k, v)
+	}
+
+	return n
+}
+
+func inorder(n *node, action func(int, int)) {
+	if n == nil {
+		return
+	}
+	inorder(n.left, action)
+	action(n.key, n.value)
+	inorder(n.right, action)
+}
+
+func erase(n *node, k int) *node {
+	if n == nil {
+		return nil
+	}
+	if k < n.key {
+		n.left = erase(n.left, k)
+		return n
+	}
+	if k > n.key {
+		n.right = erase(n.right, k)
+		return n
+	}
+
+	if n.left == nil {
+		return n.right
+	}
+	if n.right == nil {
+		return n.left
+	}
+
+	min := n.right
+	for min != nil && min.left != nil {
+		min = min.left
+	}
+	n.key = min.key
+	n.value = min.value
+	n.right = erase(n.right, n.key)
+
+	return n
 }
 
 func TestCircularQueue(t *testing.T) {
