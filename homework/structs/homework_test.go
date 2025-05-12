@@ -12,79 +12,91 @@ type Option func(*GamePerson)
 
 func WithName(name string) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		copy(person.name[:], name)
 	}
 }
 
 func WithCoordinates(x, y, z int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.x = int32(x)
+		person.y = int32(y)
+		person.z = int32(z)
 	}
 }
 
 func WithGold(gold int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.gold = uint32(gold)
 	}
 }
 
 func WithMana(mana int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// Сохраняем ману в нижних 10 битах
+		person.manaHealthFlags |= uint32(mana)
 	}
 }
 
 func WithHealth(health int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// Сохраняем здоровье в битах с 10 по 19
+		person.manaHealthFlags |= uint32(health) << 10
 	}
 }
 
 func WithRespect(respect int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// Сохраняем уважение в младших 4 битах
+		person.rselAttrs |= uint16(respect)
 	}
 }
 
 func WithStrength(strength int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// Сохраняем силу в битах с 4 по 7
+		person.rselAttrs |= uint16(strength) << 4
 	}
 }
 
 func WithExperience(experience int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// Сохраняем опыт в битах с 8 по 11
+		person.rselAttrs |= uint16(experience) << 8
 	}
 }
 
 func WithLevel(level int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// Сохраняем уровень в битах с 12 по 15
+		person.rselAttrs |= uint16(level) << 12
 	}
 }
 
 func WithHouse() func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// Флаг дома - 20-й бит
+		person.manaHealthFlags |= uint32(1) << 20
 	}
 }
 
 func WithGun() func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// Флаг оружия - 22-й бит
+		person.manaHealthFlags |= uint32(1) << 22
 	}
 }
 
 func WithFamily() func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// Флаг семьи - 21-й бит
+		person.manaHealthFlags |= uint32(1) << 21
 	}
 }
 
 func WithType(personType int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// Тип игрока - биты с 23 по 30
+		person.manaHealthFlags |= uint32(personType) << 23
 	}
 }
 
@@ -95,87 +107,83 @@ const (
 )
 
 type GamePerson struct {
-	// need to implement
+	x               int32
+	y               int32
+	z               int32
+	gold            uint32
+	manaHealthFlags uint32
+	rselAttrs       uint16
+	name            [42]byte
 }
 
 func NewGamePerson(options ...Option) GamePerson {
-	// need to implement
-	return GamePerson{}
+	person := GamePerson{}
+
+	for _, option := range options {
+		option(&person)
+	}
+
+	return person
 }
 
 func (p *GamePerson) Name() string {
-	// need to implement
-	return ""
+	return string(p.name[:])
 }
 
 func (p *GamePerson) X() int {
-	// need to implement
-	return 0
+	return int(p.x)
 }
 
 func (p *GamePerson) Y() int {
-	// need to implement
-	return 0
+	return int(p.y)
 }
 
 func (p *GamePerson) Z() int {
-	// need to implement
-	return 0
+	return int(p.z)
 }
 
 func (p *GamePerson) Gold() int {
-	// need to implement
-	return 0
+	return int(p.gold)
 }
 
 func (p *GamePerson) Mana() int {
-	// need to implement
-	return 0
+	return int(p.manaHealthFlags & 0x3FF) // Мана в нижних 10 битах
 }
 
 func (p *GamePerson) Health() int {
-	// need to implement
-	return 0
+	return int((p.manaHealthFlags >> 10) & 0x3FF) // Здоровье в битах с 10 по 19
 }
 
 func (p *GamePerson) Respect() int {
-	// need to implement
-	return 0
+	return int(p.rselAttrs & 0xF) // Уважение в младших 4 битах
 }
 
 func (p *GamePerson) Strength() int {
-	// need to implement
-	return 0
+	return int((p.rselAttrs >> 4) & 0xF) // Сила в битах с 4 по 7
 }
 
 func (p *GamePerson) Experience() int {
-	// need to implement
-	return 0
+	return int((p.rselAttrs >> 8) & 0xF) // Опыт в битах с 8 по 11
 }
 
 func (p *GamePerson) Level() int {
-	// need to implement
-	return 0
+	return int((p.rselAttrs >> 12) & 0xF) // Уровень в битах с 12 по 15
 }
 
 func (p *GamePerson) HasHouse() bool {
-	// need to implement
-	return false
+	return (p.manaHealthFlags & (1 << 20)) != 0
 }
 
 func (p *GamePerson) HasGun() bool {
-	// need to implement
-	return false
+	return (p.manaHealthFlags & (1 << 22)) != 0
 }
 
-func (p *GamePerson) HasFamilty() bool {
-	// need to implement
-	return false
+func (p *GamePerson) HasFamily() bool {
+	return (p.manaHealthFlags & (1 << 21)) != 0
 }
 
 func (p *GamePerson) Type() int {
-	// need to implement
-	return 0
+	return int((p.manaHealthFlags >> 23) & 0xFF) // Тип игрока в битах с 23 по 30
 }
 
 func TestGamePerson(t *testing.T) {
@@ -220,7 +228,7 @@ func TestGamePerson(t *testing.T) {
 	assert.Equal(t, experience, person.Experience())
 	assert.Equal(t, level, person.Level())
 	assert.True(t, person.HasHouse())
-	assert.True(t, person.HasFamilty())
+	assert.True(t, person.HasFamily())
 	assert.False(t, person.HasGun())
 	assert.Equal(t, personType, person.Type())
 }
