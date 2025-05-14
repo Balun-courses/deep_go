@@ -2,6 +2,8 @@ package main
 
 import (
 	"errors"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,17 +12,35 @@ import (
 // go test -v homework_test.go
 
 type MultiError struct {
-	// need to implement
+	errs []error
 }
 
 func (e *MultiError) Error() string {
-	// need to implement
-	return ""
+	if len(e.errs) == 0 {
+		return ""
+	}
+	res := strings.Builder{}
+	res.WriteString(strconv.Itoa(len(e.errs)))
+	res.WriteString(" errors occured:\n")
+
+	for _, err := range e.errs {
+		res.WriteString("\t* ")
+		res.WriteString(err.Error())
+	}
+
+	res.WriteString("\n")
+
+	return res.String()
 }
 
 func Append(err error, errs ...error) *MultiError {
-	// need to implement
-	return nil
+	if multiErr, ok := err.(*MultiError); ok {
+		multiErr.errs = append(multiErr.errs, errs...)
+		return multiErr
+	}
+	return &MultiError{
+		errs: errs,
+	}
 }
 
 func TestMultiError(t *testing.T) {
