@@ -1,12 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 // go test -v homework_test.go
+
+var (
+	ErrTypeNotFound error = fmt.Errorf("type not found")
+)
 
 type UserService struct {
 	// not need to implement
@@ -18,21 +23,29 @@ type MessageService struct {
 }
 
 type Container struct {
-	// need to implement
+	types map[string]any
 }
 
 func NewContainer() *Container {
-	// need to implement
-	return &Container{}
+	return &Container{
+		types: make(map[string]any),
+	}
 }
 
 func (c *Container) RegisterType(name string, constructor interface{}) {
-	// need to implement
+	c.types[name] = constructor
 }
 
 func (c *Container) Resolve(name string) (interface{}, error) {
-	// need to implement
-	return nil, nil
+	if constructor, ok := c.types[name]; ok {
+		switch x := constructor.(type) {
+		case func() interface{}:
+			return x(), nil
+		case interface{}:
+			return x, nil
+		}
+	}
+	return nil, ErrTypeNotFound
 }
 
 func TestDIContainer(t *testing.T) {
