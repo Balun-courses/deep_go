@@ -8,83 +8,120 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// go test -v homework_test.go
+
+func StringToByte(str string) []byte {
+	if len(str) == 0 {
+		return nil
+	}
+
+	return unsafe.Slice(unsafe.StringData(str), len(str))
+}
+
+func ByteToString(data []byte) string {
+	if len(data) == 0 {
+		return ""
+	}
+
+	return unsafe.String(unsafe.SliceData(data), len(data))
+}
+
 type Option func(*GamePerson)
 
 func WithName(name string) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		if len(name) > 42 {
+			name = name[:42]
+		}
+		//len 41-46 bits
+		person.rest[5] = byte(len(name)&0x3F)<<2 | person.rest[5]&0x01
+		copy(person.name[:], StringToByte(name))
 	}
 }
 
 func WithCoordinates(x, y, z int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.x = int32(x)
+		person.y = int32(y)
+		person.z = int32(z)
 	}
 }
 
 func WithGold(gold int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.gold = uint32(gold)
 	}
 }
 
 func WithMana(mana int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// 0-9 bits - mana
+		person.rest[0] = byte(mana & 0xFF)
+		person.rest[1] = (person.rest[1] & 0xFC) | byte((mana>>8)&0x03)
 	}
 }
 
 func WithHealth(health int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// 10‑19 bits - health
+		person.rest[1] = (person.rest[1] & 0x03) | byte((health&0x3FF)<<2)
+		person.rest[2] = (person.rest[2] & 0xF0) | byte((health>>6)&0x0F)
 	}
 }
 
 func WithRespect(respect int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// 20‑23 bits - respect
+		person.rest[2] = (person.rest[2] & 0x0F) | byte((respect&0xF)<<4)
 	}
 }
 
 func WithStrength(strength int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// 24‑27 bits - strength
+		person.rest[3] = (person.rest[3] & 0xF0) | byte(strength&0xF)
 	}
 }
 
 func WithExperience(experience int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// 28‑31 bits - experience
+		person.rest[3] = (person.rest[3] & 0x0F) | byte((experience&0xF)<<4)
 	}
 }
 
 func WithLevel(level int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// 32‑35 bits - level
+		person.rest[4] = (person.rest[4] & 0xF0) | byte(level&0xF)
 	}
 }
 
 func WithHouse() func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// 38 - bit
+		person.rest[4] |= 0x40
 	}
 }
 
 func WithGun() func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// 39 - bit
+		person.rest[4] |= 0x80
 	}
 }
 
 func WithFamily() func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// 40 - bit
+		person.rest[5] |= 0x01
 	}
 }
 
 func WithType(personType int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		// 36‑37 bits
+		person.rest[4] = (person.rest[4] & 0xCF) | byte((personType&3)<<4)
 	}
 }
 
@@ -95,87 +132,97 @@ const (
 )
 
 type GamePerson struct {
-	// need to implement
+	x, y, z int32
+	gold    uint32
+	name    [42]byte
+	rest    [6]byte
 }
 
 func NewGamePerson(options ...Option) GamePerson {
-	// need to implement
-	return GamePerson{}
+	person := GamePerson{}
+
+	for _, option := range options {
+		option(&person)
+	}
+
+	return person
 }
 
 func (p *GamePerson) Name() string {
-	// need to implement
-	return ""
+	//len 41-46 bits
+	lenName := int(p.rest[5] >> 2)
+	if lenName == 0 {
+		return ""
+	} else {
+		return ByteToString(p.name[:lenName])
+	}
 }
 
 func (p *GamePerson) X() int {
-	// need to implement
-	return 0
+	return int(p.x)
 }
 
 func (p *GamePerson) Y() int {
-	// need to implement
-	return 0
+	return int(p.y)
 }
 
 func (p *GamePerson) Z() int {
-	// need to implement
-	return 0
+	return int(p.z)
 }
 
 func (p *GamePerson) Gold() int {
-	// need to implement
-	return 0
+	return int(p.gold)
 }
 
 func (p *GamePerson) Mana() int {
-	// need to implement
-	return 0
+	// 0-9 bits - mana
+	return int(p.rest[0]) | int(p.rest[1]&0x03)<<8
 }
 
 func (p *GamePerson) Health() int {
-	// need to implement
-	return 0
+	// 10‑19 bits - health
+	return int(p.rest[1]>>2) | int(p.rest[2]&0x0F)<<6
 }
 
 func (p *GamePerson) Respect() int {
-	// need to implement
-	return 0
+	// 20‑23 bits - respect
+	return int(p.rest[2] >> 4)
 }
 
 func (p *GamePerson) Strength() int {
-	// need to implement
-	return 0
+	// 24‑27 bits - strength
+	return int(p.rest[3] & 0x0F)
 }
 
 func (p *GamePerson) Experience() int {
-	// need to implement
-	return 0
+	// 28‑31 bits - experience
+	return int(p.rest[3] >> 4)
 }
 
 func (p *GamePerson) Level() int {
-	// need to implement
-	return 0
+	// 32‑35 bits - level
+	return int(p.rest[4] & 0x0F)
 }
 
 func (p *GamePerson) HasHouse() bool {
-	// need to implement
-	return false
+	// 38 - bit
+	return p.rest[4]&0x40 != 0
+
 }
 
 func (p *GamePerson) HasGun() bool {
-	// need to implement
-	return false
+	// 39 - bit
+	return p.rest[4]&0x80 != 0
 }
 
 func (p *GamePerson) HasFamilty() bool {
-	// need to implement
-	return false
+	// 40 - bit
+	return p.rest[5]&0x01 != 0
 }
 
 func (p *GamePerson) Type() int {
-	// need to implement
-	return 0
+	// 36‑37 bits
+	return int((p.rest[4] >> 4) & 0x03)
 }
 
 func TestGamePerson(t *testing.T) {
