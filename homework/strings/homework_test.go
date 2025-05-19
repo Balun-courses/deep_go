@@ -2,6 +2,7 @@ package main
 
 import (
 	"reflect"
+	"runtime"
 	"testing"
 	"unsafe"
 
@@ -11,27 +12,52 @@ import (
 type COWBuffer struct {
 	data []byte
 	refs *int
-	// need to implement
 }
 
 func NewCOWBuffer(data []byte) COWBuffer {
-	return COWBuffer{} // need to implement
+	countRef := 1
+	cb := &COWBuffer{
+		data: data,
+		refs: &countRef,
+	}
+	runtime.SetFinalizer(cb, func(cb *COWBuffer) {
+		cb.Close()
+	})
+	return *cb
 }
 
 func (b *COWBuffer) Clone() COWBuffer {
-	return COWBuffer{} // need to implement
+	*b.refs++
+	return *b
 }
 
 func (b *COWBuffer) Close() {
-	// need to implement
+	if b.data == nil {
+		return
+	}
+	if b.refs != nil && *b.refs != 0 {
+		*b.refs--
+	} else {
+		b.data = nil
+	}
 }
 
 func (b *COWBuffer) Update(index int, value byte) bool {
-	return false // need to implement
+	if index < 0 || index >= len(b.data) {
+		return false
+	}
+	if *b.refs > 1 {
+		*b.refs--
+		dataCopy := make([]byte, len(b.data))
+		copy(dataCopy, b.data)
+		b.data = dataCopy
+	}
+	b.data[index] = value
+	return true
 }
 
 func (b *COWBuffer) String() string {
-	return "" // need to implement
+	return unsafe.String(unsafe.SliceData(b.data), len(b.data))
 }
 
 func TestCOWBuffer(t *testing.T) {
@@ -46,9 +72,9 @@ func TestCOWBuffer(t *testing.T) {
 	assert.Equal(t, unsafe.SliceData(buffer.data), unsafe.SliceData(copy1.data))
 	assert.Equal(t, unsafe.SliceData(copy1.data), unsafe.SliceData(copy2.data))
 
-	assert.True(t, (*byte)(unsafe.SliceData(data)) == unsafe.StringData(buffer.String()))
-	assert.True(t, (*byte)(unsafe.StringData(buffer.String())) == unsafe.StringData(copy1.String()))
-	assert.True(t, (*byte)(unsafe.StringData(copy1.String())) == unsafe.StringData(copy2.String()))
+	assert.True(t, unsafe.SliceData(data) == unsafe.StringData(buffer.String()))
+	assert.True(t, unsafe.StringData(buffer.String()) == unsafe.StringData(copy1.String()))
+	assert.True(t, unsafe.StringData(copy1.String()) == unsafe.StringData(copy2.String()))
 
 	assert.True(t, buffer.Update(0, 'g'))
 	assert.False(t, buffer.Update(-1, 'g'))
