@@ -11,7 +11,27 @@ import (
 // go test -v homework_test.go
 
 func Defragment(memory []byte, pointers []unsafe.Pointer) {
-	// need to implement
+	// Следующая свободная позиция для перемещения данных
+	nextFreeIndex := 0
+
+	for i := range memory {
+		if memory[i] != 0 {
+			if nextFreeIndex < i {
+				memory[nextFreeIndex] = memory[i]
+				memory[i] = 0
+			}
+
+			// Обновляем соответствующий указатель
+			for j, ptr := range pointers {
+				if uintptr(ptr) == uintptr(unsafe.Pointer(&memory[i])) {
+					pointers[j] = unsafe.Pointer(&memory[nextFreeIndex])
+					break
+				}
+			}
+
+			nextFreeIndex++
+		}
+	}
 }
 
 func TestDefragmentation(t *testing.T) {
