@@ -1,12 +1,13 @@
 package main
 
 import (
-	"testing"
-
+	"fmt"
 	"github.com/stretchr/testify/assert"
+	"reflect"
+	"strconv"
+	"strings"
+	"testing"
 )
-
-// go test -v homework_test.go
 
 type Person struct {
 	Name    string `properties:"name"`
@@ -16,8 +17,60 @@ type Person struct {
 }
 
 func Serialize(person Person) string {
-	// need to implement
-	return ""
+	v := reflect.ValueOf(person)
+	t := reflect.TypeOf(person)
+
+	var b strings.Builder
+	for i := 0; i < v.NumField(); i++ {
+		fieldValue := v.Field(i)
+		fieldType := t.Field(i)
+
+		tag := fieldType.Tag.Get("properties")
+		if tag == "" {
+			continue
+		}
+
+		parts := strings.Split(tag, ",")
+		key := parts[0]
+		omitempty := len(parts) > 1 && parts[1] == "omitempty"
+
+		// Проверяем на пустое значение при наличии `omitempty`
+		if omitempty {
+			switch fieldValue.Kind() {
+			case reflect.String:
+				if fieldValue.String() == "" {
+					continue
+				}
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				if fieldValue.Int() == 0 {
+					continue
+				}
+			case reflect.Bool:
+				if !fieldValue.Bool() {
+					continue
+				}
+			}
+		}
+
+		// Преобразуем значение в строку
+		var valueStr string
+		switch fieldValue.Kind() {
+		case reflect.String:
+			valueStr = fieldValue.String()
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			valueStr = strconv.FormatInt(fieldValue.Int(), 10)
+		case reflect.Bool:
+			valueStr = strconv.FormatBool(fieldValue.Bool())
+		default:
+			continue
+		}
+
+		fmt.Fprintf(&b, "%s=%s\n", key, valueStr)
+	}
+
+	// Удаляем последний перевод строки, если есть
+	result := b.String()
+	return strings.TrimSuffix(result, "\n")
 }
 
 func TestSerialization(t *testing.T) {
