@@ -1,38 +1,59 @@
 package main
 
 import (
-	"testing"
-
+	"errors"
+	"fmt"
 	"github.com/stretchr/testify/assert"
+	"reflect"
+	"sync"
+	"testing"
 )
 
-// go test -v homework_test.go
-
 type UserService struct {
-	// not need to implement
 	NotEmptyStruct bool
 }
 type MessageService struct {
-	// not need to implement
 	NotEmptyStruct bool
 }
 
 type Container struct {
-	// need to implement
+	mu           sync.RWMutex
+	constructors map[string]interface{}
 }
 
 func NewContainer() *Container {
-	// need to implement
-	return &Container{}
+	return &Container{
+		constructors: make(map[string]interface{}),
+	}
 }
 
 func (c *Container) RegisterType(name string, constructor interface{}) {
-	// need to implement
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if constructor == nil {
+		panic("constructor cannot be nil")
+	}
+	c.constructors[name] = constructor
 }
 
 func (c *Container) Resolve(name string) (interface{}, error) {
-	// need to implement
-	return nil, nil
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	constructor, ok := c.constructors[name]
+	if !ok {
+		return nil, fmt.Errorf("type '%s' not registered", name)
+	}
+
+	ctorVal := reflect.ValueOf(constructor)
+
+	if ctorVal.Kind() != reflect.Func || ctorVal.Type().NumIn() != 0 || ctorVal.Type().NumOut() != 1 {
+		return nil, errors.New("constructor must be a function with no input arguments and one return value")
+	}
+
+	result := ctorVal.Call(nil)
+	return result[0].Interface(), nil
 }
 
 func TestDIContainer(t *testing.T) {
