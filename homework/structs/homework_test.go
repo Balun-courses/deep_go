@@ -8,83 +8,113 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	NameLength = 42
+)
+
+const (
+	// attrs
+	ManaOffset      = 22
+	HealthOffset    = 12
+	HasHouseOffset  = 11
+	HasGunOffset    = 10
+	HasFamilyOffset = 9
+	TypeOffset      = 7
+
+	// props
+	RespectOffset    = 12
+	StrengthOffset   = 8
+	ExperienceOffset = 4
+)
+
+const (
+	TenBitMask  = 0x3FF
+	FourBitMask = 0xF
+	TwoBitMask  = 0b11
+	OneBitMask  = 0b1
+)
+
 type Option func(*GamePerson)
 
 func WithName(name string) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		for i := 0; i < NameLength; i++ {
+			person.name[i] = name[i]
+		}
 	}
 }
 
 func WithCoordinates(x, y, z int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.x = int32(x)
+		person.y = int32(y)
+		person.z = int32(z)
 	}
 }
 
 func WithGold(gold int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.gold = uint32(gold)
 	}
 }
 
 func WithMana(mana int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.attrs |= uint32(mana) << ManaOffset
 	}
 }
 
 func WithHealth(health int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.attrs |= uint32(health) << HealthOffset
 	}
 }
 
 func WithRespect(respect int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.props |= uint16(respect) << RespectOffset
 	}
 }
 
 func WithStrength(strength int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.props |= uint16(strength) << StrengthOffset
 	}
 }
 
 func WithExperience(experience int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.props |= uint16(experience) << ExperienceOffset
 	}
 }
 
 func WithLevel(level int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.props |= uint16(level)
 	}
 }
 
 func WithHouse() func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.attrs |= 1 << HasHouseOffset
 	}
 }
 
 func WithGun() func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.attrs |= 1 << HasGunOffset
 	}
 }
 
 func WithFamily() func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.attrs |= 1 << HasFamilyOffset
 	}
 }
 
 func WithType(personType int) func(*GamePerson) {
 	return func(person *GamePerson) {
-		// need to implement
+		person.attrs |= uint32(personType) << TypeOffset
 	}
 }
 
@@ -95,87 +125,79 @@ const (
 )
 
 type GamePerson struct {
-	// need to implement
+	x, y, z int32
+	gold    uint32
+	attrs   uint32
+	props   uint16
+	name    [NameLength]byte
 }
 
 func NewGamePerson(options ...Option) GamePerson {
-	// need to implement
-	return GamePerson{}
+	p := GamePerson{}
+	for _, option := range options {
+		option(&p)
+	}
+	return p
 }
 
 func (p *GamePerson) Name() string {
-	// need to implement
-	return ""
+	return unsafe.String(&p.name[0], len(p.name))
 }
 
 func (p *GamePerson) X() int {
-	// need to implement
-	return 0
+	return int(p.x)
 }
 
 func (p *GamePerson) Y() int {
-	// need to implement
-	return 0
+	return int(p.y)
 }
 
 func (p *GamePerson) Z() int {
-	// need to implement
-	return 0
+	return int(p.z)
 }
 
 func (p *GamePerson) Gold() int {
-	// need to implement
-	return 0
+	return int(p.gold)
 }
 
 func (p *GamePerson) Mana() int {
-	// need to implement
-	return 0
+	return int(p.attrs >> ManaOffset)
 }
 
 func (p *GamePerson) Health() int {
-	// need to implement
-	return 0
+	return int((p.attrs >> HealthOffset) & TenBitMask)
 }
 
 func (p *GamePerson) Respect() int {
-	// need to implement
-	return 0
+	return int(p.props >> RespectOffset)
 }
 
 func (p *GamePerson) Strength() int {
-	// need to implement
-	return 0
+	return int((p.props >> StrengthOffset) & FourBitMask)
 }
 
 func (p *GamePerson) Experience() int {
-	// need to implement
-	return 0
+	return int((p.props >> ExperienceOffset) & FourBitMask)
 }
 
 func (p *GamePerson) Level() int {
-	// need to implement
-	return 0
+	return int(p.props & FourBitMask)
 }
 
 func (p *GamePerson) HasHouse() bool {
-	// need to implement
-	return false
+	return (p.attrs>>HasHouseOffset)&OneBitMask == 1
 }
 
 func (p *GamePerson) HasGun() bool {
-	// need to implement
-	return false
+	return (p.attrs>>HasGunOffset)&OneBitMask == 1
 }
 
 func (p *GamePerson) HasFamilty() bool {
-	// need to implement
-	return false
+	return (p.attrs>>HasFamilyOffset)&OneBitMask == 1
 }
 
 func (p *GamePerson) Type() int {
-	// need to implement
-	return 0
+	return int((p.attrs >> TypeOffset) & TwoBitMask)
 }
 
 func TestGamePerson(t *testing.T) {
