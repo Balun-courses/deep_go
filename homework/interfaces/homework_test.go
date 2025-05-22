@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,30 +10,47 @@ import (
 // go test -v homework_test.go
 
 type UserService struct {
-	// not need to implement
 	NotEmptyStruct bool
 }
 type MessageService struct {
-	// not need to implement
+	NotEmptyStruct bool
+}
+type Singleton struct {
 	NotEmptyStruct bool
 }
 
 type Container struct {
-	// need to implement
+	dependencies map[string]interface{}
 }
 
 func NewContainer() *Container {
-	// need to implement
-	return &Container{}
+	return &Container{dependencies: make(map[string]interface{})}
 }
 
 func (c *Container) RegisterType(name string, constructor interface{}) {
-	// need to implement
+	c.dependencies[name] = constructor
+}
+
+func (c *Container) RegisterSingletonType(name string, constructor interface{}) {
+	if _, ok := c.dependencies[name]; ok {
+		return
+	}
+	fn, ok := constructor.(func() interface{})
+	if !ok {
+		panic("constructor must be func() interface{} for singleton")
+	}
+	c.dependencies[name] = fn()
 }
 
 func (c *Container) Resolve(name string) (interface{}, error) {
-	// need to implement
-	return nil, nil
+	constructor, ok := c.dependencies[name]
+	if !ok {
+		return nil, errors.New("no constructor registered")
+	}
+	if fn, ok := constructor.(func() interface{}); ok {
+		return fn(), nil
+	}
+	return constructor, nil
 }
 
 func TestDIContainer(t *testing.T) {
@@ -42,6 +60,9 @@ func TestDIContainer(t *testing.T) {
 	})
 	container.RegisterType("MessageService", func() interface{} {
 		return &MessageService{}
+	})
+	container.RegisterSingletonType("Singleton", func() interface{} {
+		return &Singleton{}
 	})
 
 	userService1, err := container.Resolve("UserService")
@@ -60,4 +81,12 @@ func TestDIContainer(t *testing.T) {
 	paymentService, err := container.Resolve("PaymentService")
 	assert.Error(t, err)
 	assert.Nil(t, paymentService)
+
+	service3, err := container.Resolve("Singleton")
+	assert.NoError(t, err)
+	service4, err := container.Resolve("Singleton")
+	assert.NoError(t, err)
+	s3 := service3.(*Singleton)
+	s4 := service4.(*Singleton)
+	assert.True(t, s3 == s4)
 }
