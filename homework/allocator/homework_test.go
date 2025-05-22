@@ -1,17 +1,35 @@
 package main
 
 import (
+	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
 	"unsafe"
-
-	"github.com/stretchr/testify/assert"
 )
 
-// go test -v homework_test.go
-
 func Defragment(memory []byte, pointers []unsafe.Pointer) {
-	// need to implement
+	writeIndex := 0
+	pointerMap := make(map[uintptr]int)
+
+	// создаём карту старых указателей → их индексы в `pointers`
+	for i, p := range pointers {
+		pointerMap[uintptr(p)] = i
+	}
+
+	// перемещаем занятые байты (0xFF) в начало памяти
+	for readIndex := 0; readIndex < len(memory); readIndex++ {
+		if memory[readIndex] == 0xFF {
+			if writeIndex != readIndex {
+				memory[writeIndex] = memory[readIndex]
+				memory[readIndex] = 0x00
+			}
+			// если этот байт был одним из указанных в pointers — обновим его
+			if i, ok := pointerMap[uintptr(unsafe.Pointer(&memory[readIndex]))]; ok {
+				pointers[i] = unsafe.Pointer(&memory[writeIndex])
+			}
+			writeIndex++
+		}
+	}
 }
 
 func TestDefragmentation(t *testing.T) {
