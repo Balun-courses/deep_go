@@ -8,8 +8,24 @@ import (
 
 // go test -v homework_test.go
 
-func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+func ToLittleEndian[T ~uint16 | ~uint32 | ~uint64](num T) T {
+	var size int
+	switch any(num).(type) {
+	case uint16:
+		size = 2
+	case uint32:
+		size = 4
+	case uint64:
+		size = 8
+	default:
+		panic("unsupported type")
+	}
+
+	var result T
+	for i := 0; i < size; i++ {
+		result |= ((num >> (8 * i)) & 0xFF) << (8 * (size - 1 - i))
+	}
+	return result
 }
 
 func TestСonversion(t *testing.T) {
