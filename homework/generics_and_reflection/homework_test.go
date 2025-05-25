@@ -3,7 +3,10 @@ package main
 import (
 	"testing"
 
+	"fmt"
 	"github.com/stretchr/testify/assert"
+	"reflect"
+	"strings"
 )
 
 // go test -v homework_test.go
@@ -15,9 +18,50 @@ type Person struct {
 	Married bool   `properties:"married"`
 }
 
+const (
+	tagName         = "properties"
+	suffixOmitEmpty = "omitempty"
+)
+
 func Serialize(person Person) string {
-	// need to implement
-	return ""
+	v := reflect.ValueOf(&person).Elem()
+	t := v.Type()
+
+	sb := new(strings.Builder)
+
+	for idx := 0; idx < v.NumField(); idx++ {
+		field := v.Field(idx)
+		tag := t.Field(idx).Tag.Get(tagName)
+
+		if NoTag(tag) || (HasOmitEmpty(tag) && HasZeroValue(field)) {
+			continue
+		}
+
+		if HasOmitEmpty(tag) {
+			tag = strings.TrimSuffix(tag, ","+suffixOmitEmpty)
+		}
+
+		sb.WriteString(fmt.Sprintf("%s=%v", tag, field.Interface()))
+
+		if idx < v.NumField()-1 {
+			sb.WriteByte('\n')
+		}
+	}
+
+	return sb.String()
+
+}
+
+func HasOmitEmpty(tag string) bool {
+	return strings.Contains(tag, "omitempty")
+}
+
+func HasZeroValue(field reflect.Value) bool {
+	return field.IsZero()
+}
+
+func NoTag(tag string) bool {
+	return tag == ""
 }
 
 func TestSerialization(t *testing.T) {
