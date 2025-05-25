@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,16 +12,27 @@ import (
 
 type MultiError struct {
 	// need to implement
+	errs []error
 }
 
 func (e *MultiError) Error() string {
-	// need to implement
-	return ""
+	res := fmt.Sprintf("%d errors occured:\n", len(e.errs))
+	for _, err := range e.errs {
+		res += fmt.Sprintf("\t* %v", err)
+	}
+	return res + "\n"
 }
 
 func Append(err error, errs ...error) *MultiError {
-	// need to implement
-	return nil
+	var me *MultiError
+	if err == nil {
+		me = &MultiError{}
+	} else {
+		me = err.(*MultiError)
+	}
+	me.errs = append(me.errs, errs...)
+
+	return me
 }
 
 func TestMultiError(t *testing.T) {
