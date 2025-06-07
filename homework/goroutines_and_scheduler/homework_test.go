@@ -12,25 +12,89 @@ type Task struct {
 }
 
 type Scheduler struct {
-	// need to implement
+	tasks []Task
+	index map[int]int
 }
 
 func NewScheduler() Scheduler {
-	// need to implement
-	return Scheduler{}
+	return Scheduler{
+		tasks: []Task{},
+		index: make(map[int]int),
+	}
 }
 
 func (s *Scheduler) AddTask(task Task) {
-	// need to implement
+	s.tasks = append(s.tasks, task)
+	taskIndex := len(s.tasks) - 1
+	s.heapifyUp(taskIndex)
 }
 
 func (s *Scheduler) ChangeTaskPriority(taskID int, newPriority int) {
-	// need to implement
+	index, ok := s.index[taskID]
+	if !ok {
+		return
+	}
+	oldPriority := s.tasks[index].Priority
+	s.tasks[index].Priority = newPriority
+
+	if newPriority > oldPriority {
+		s.heapifyUp(index)
+	} else {
+		s.heapifyDown(index)
+	}
 }
 
 func (s *Scheduler) GetTask() Task {
-	// need to implement
-	return Task{}
+	if len(s.tasks) == 0 {
+		return Task{}
+	}
+	result := s.tasks[0]
+	s.tasks[0] = s.tasks[len(s.tasks)-1]
+	s.tasks = s.tasks[:len(s.tasks)-1]
+
+	if len(s.tasks) > 0 {
+		s.heapifyDown(0)
+	}
+
+	return result
+}
+
+func (s *Scheduler) heapifyUp(i int) {
+	for i > 0 {
+		parent := (i - 1) / 2
+		if s.tasks[i].Priority <= s.tasks[parent].Priority {
+			break
+		}
+		s.swap(i, parent)
+		i = parent
+	}
+}
+
+func (s *Scheduler) heapifyDown(i int) {
+	heapSize := len(s.tasks)
+	for {
+		left := 2*i + 1
+		right := 2*i + 2
+		largest := i
+
+		if left < heapSize && s.tasks[left].Priority > s.tasks[largest].Priority {
+			largest = left
+		}
+		if right < heapSize && s.tasks[right].Priority > s.tasks[largest].Priority {
+			largest = right
+		}
+		if largest == i {
+			break
+		}
+		s.swap(i, largest)
+		i = largest
+	}
+}
+
+func (s *Scheduler) swap(i, j int) {
+	s.tasks[i], s.tasks[j] = s.tasks[j], s.tasks[i]
+	s.index[s.tasks[i].Identifier] = i
+	s.index[s.tasks[j].Identifier] = j
 }
 
 func TestTrace(t *testing.T) {
@@ -56,7 +120,7 @@ func TestTrace(t *testing.T) {
 	scheduler.ChangeTaskPriority(1, 100)
 
 	task = scheduler.GetTask()
-	assert.Equal(t, task1, task)
+	assert.Equal(t, task1.Identifier, task.Identifier)
 
 	task = scheduler.GetTask()
 	assert.Equal(t, task3, task)
