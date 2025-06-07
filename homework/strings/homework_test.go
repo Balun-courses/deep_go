@@ -15,23 +15,59 @@ type COWBuffer struct {
 }
 
 func NewCOWBuffer(data []byte) COWBuffer {
-	return COWBuffer{} // need to implement
+	counter := 1
+	return COWBuffer{
+		data: data,
+		refs: &counter,
+	}
 }
 
 func (b *COWBuffer) Clone() COWBuffer {
-	return COWBuffer{} // need to implement
+	*b.refs++
+
+	return COWBuffer{
+		data: b.data,
+		refs: b.refs,
+	}
 }
 
 func (b *COWBuffer) Close() {
-	// need to implement
+	if b.refs == nil {
+		return
+	}
+
+	*b.refs--
+
+	if *b.refs == 0 {
+		b.refs = nil
+	}
 }
 
 func (b *COWBuffer) Update(index int, value byte) bool {
-	return false // need to implement
+	if index < 0 || index >= len(b.data) {
+		return false
+	}
+
+	if b.refs != nil && *b.refs == 1 {
+		b.data[index] = value
+		return true
+	}
+
+	b.Close()
+
+	counter := 1
+	*b = COWBuffer{
+		data: append([]byte{}, b.data...),
+		refs: &counter,
+	}
+
+	b.data[index] = value
+
+	return true
 }
 
 func (b *COWBuffer) String() string {
-	return "" // need to implement
+	return unsafe.String(unsafe.SliceData(b.data), len(b.data))
 }
 
 func TestCOWBuffer(t *testing.T) {
