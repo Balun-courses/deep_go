@@ -10,9 +10,42 @@ import (
 
 // go test -v homework_test.go
 
+func dereferencePtr(addr uintptr) uintptr {
+	return *(*uintptr)(unsafe.Pointer(addr))
+}
+
+func isVisitedOrNil(curr uintptr, visited *map[uintptr]bool) bool {
+	if curr == 0 {
+		return true
+	}
+	if _, ok := (*visited)[curr]; ok {
+		return true
+	}
+
+	return false
+}
+
+func tracePtr(curr uintptr, visited *map[uintptr]bool, result *[]uintptr) {
+	if !isVisitedOrNil(curr, visited) {
+		(*visited)[curr] = true
+		*result = append(*result, curr)
+		tracePtr(dereferencePtr(curr), visited, result)
+
+	}
+}
+
 func Trace(stacks [][]uintptr) []uintptr {
-	// need to implement
-	return nil
+	visited := make(map[uintptr]bool, 0)
+	result := make([]uintptr, 0)
+
+	for _, stack := range stacks {
+		for _, ptr := range stack {
+			tracePtr(ptr, &visited, &result)
+		}
+
+	}
+
+	return result
 }
 
 func TestTrace(t *testing.T) {
@@ -49,9 +82,9 @@ func TestTrace(t *testing.T) {
 	pointers := Trace(stacks)
 	expectedPointers := []uintptr{
 		uintptr(unsafe.Pointer(&heapPointer1)),
+		uintptr(unsafe.Pointer(&heapObjects[1])),
 		uintptr(unsafe.Pointer(&heapObjects[0])),
 		uintptr(unsafe.Pointer(&heapPointer2)),
-		uintptr(unsafe.Pointer(&heapObjects[1])),
 		uintptr(unsafe.Pointer(&heapObjects[2])),
 		uintptr(unsafe.Pointer(&heapPointer4)),
 		uintptr(unsafe.Pointer(&heapPointer3)),
