@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,30 +11,49 @@ import (
 // go test -v homework_test.go
 
 type UserService struct {
-	// not need to implement
 	NotEmptyStruct bool
 }
 type MessageService struct {
-	// not need to implement
 	NotEmptyStruct bool
 }
 
 type Container struct {
-	// need to implement
+	constructors map[string]interface{}
 }
 
 func NewContainer() *Container {
-	// need to implement
-	return &Container{}
+	return &Container{
+		constructors: make(map[string]interface{}),
+	}
 }
 
 func (c *Container) RegisterType(name string, constructor interface{}) {
-	// need to implement
+	if reflect.TypeOf(constructor).Kind() != reflect.Func {
+		panic(fmt.Sprintf("constructor for %s must be a function", name))
+	}
+	c.constructors[name] = constructor
 }
 
 func (c *Container) Resolve(name string) (interface{}, error) {
-	// need to implement
-	return nil, nil
+	constructor, exists := c.constructors[name]
+	if !exists {
+		return nil, fmt.Errorf("dependency %s not found", name)
+	}
+	constructorType := reflect.TypeOf(constructor)
+	if constructorType.NumOut() == 0 {
+		return nil, fmt.Errorf("constructor for %s must return at least one value", name)
+	}
+	results := reflect.ValueOf(constructor).Call(nil)
+	if len(results) == 0 {
+		return nil, fmt.Errorf("constructor for %s returned no values", name)
+	}
+	for _, result := range results {
+		if result.Type().Implements(reflect.TypeOf((*error)(nil)).Elem()) && !result.IsNil() {
+			return nil, result.Interface().(error)
+		}
+	}
+
+	return results[0].Interface(), nil
 }
 
 func TestDIContainer(t *testing.T) {
