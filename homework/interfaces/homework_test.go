@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,20 +20,45 @@ type MessageService struct {
 
 type Container struct {
 	// need to implement
+	table  map[string]func() interface{}
+	single map[string]func() interface{}
 }
 
 func NewContainer() *Container {
 	// need to implement
-	return &Container{}
+	return &Container{
+		table: map[string]func() interface{}{},
+	}
 }
 
 func (c *Container) RegisterType(name string, constructor interface{}) {
+	if val, ok := constructor.(func() interface{}); ok {
+		c.table[name] = val
+	} else {
+		return
+	}
+	// need to implement
+}
+
+func (c *Container) RegisterSingletonType(name string, constructor interface{}) {
+	if val, ok := constructor.(func() interface{}); ok {
+		c.single[name] = val
+	} else {
+		return
+	}
 	// need to implement
 }
 
 func (c *Container) Resolve(name string) (interface{}, error) {
-	// need to implement
-	return nil, nil
+	if val, ok := c.single[name]; ok {
+		return val(), nil
+	}
+
+	if val, ok := c.table[name]; ok {
+		return val(), nil
+	} else {
+		return nil, errors.New("some error")
+	}
 }
 
 func TestDIContainer(t *testing.T) {
