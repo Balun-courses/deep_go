@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,21 +20,29 @@ type MessageService struct {
 }
 
 type Container struct {
-	// need to implement
+	typeConstructor map[string]interface{}
 }
 
 func NewContainer() *Container {
-	// need to implement
-	return &Container{}
+	return &Container{typeConstructor: make(map[string]interface{})}
 }
 
 func (c *Container) RegisterType(name string, constructor interface{}) {
-	// need to implement
+	c.typeConstructor[name] = constructor
 }
 
-func (c *Container) Resolve(name string) (interface{}, error) {
-	// need to implement
-	return nil, nil
+func (c *Container) Resolve(name string) (obj interface{}, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			obj = nil
+			err = fmt.Errorf("failed to run constructor for %s: %v", name, r)
+		}
+	}()
+	constructor, ok := c.typeConstructor[name]
+	if !ok {
+		return nil, errors.New("no constructor registered")
+	}
+	return constructor.(func() interface{})(), nil
 }
 
 func TestDIContainer(t *testing.T) {
@@ -43,6 +53,7 @@ func TestDIContainer(t *testing.T) {
 	container.RegisterType("MessageService", func() interface{} {
 		return &MessageService{}
 	})
+	container.RegisterType("int", 0)
 
 	userService1, err := container.Resolve("UserService")
 	assert.NoError(t, err)
@@ -60,4 +71,8 @@ func TestDIContainer(t *testing.T) {
 	paymentService, err := container.Resolve("PaymentService")
 	assert.Error(t, err)
 	assert.Nil(t, paymentService)
+
+	intService, err := container.Resolve("int")
+	assert.Error(t, err)
+	assert.Nil(t, intService)
 }
