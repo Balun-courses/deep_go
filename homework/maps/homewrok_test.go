@@ -9,35 +9,116 @@ import (
 
 // go test -v homework_test.go
 
+type node struct {
+	key   int
+	value int
+	left  *node
+	right *node
+}
+
 type OrderedMap struct {
-	// need to implement
+	root *node
+	len  int
 }
 
 func NewOrderedMap() OrderedMap {
-	return OrderedMap{} // need to implement
+	return OrderedMap{}
+}
+
+func (m *OrderedMap) insertNode(root *node, key int, value int) *node {
+	if root == nil {
+		m.len++
+		return &node{key: key, value: value}
+	}
+	if key < root.key {
+		root.left = m.insertNode(root.left, key, value)
+	} else if key > root.key {
+		root.right = m.insertNode(root.right, key, value)
+	} else {
+		root.value = value
+	}
+	return root
+}
+
+func (m *OrderedMap) contains(root *node, key int) bool {
+	if root == nil {
+		return false
+	}
+	if key == root.key {
+		return true
+	}
+	if key < root.key {
+		return m.contains(root.left, key)
+	}
+	return m.contains(root.right, key)
+}
+
+func (m *OrderedMap) removeNode(root *node, key int) *node {
+	if root == nil {
+		return nil
+	}
+
+	if key < root.key {
+		root.left = m.removeNode(root.left, key)
+	} else if key > root.key {
+		root.right = m.removeNode(root.right, key)
+	} else {
+		m.len--
+
+		if root.left == nil {
+			return root.right
+		}
+		if root.right == nil {
+			return root.left
+		}
+
+		successor := root.right
+		for successor.left != nil {
+			successor = successor.left
+		}
+
+		root.key = successor.key
+		root.value = successor.value
+
+		root.right = m.removeNode(root.right, successor.key)
+
+	}
+
+	return root
+}
+
+func (m *OrderedMap) forEach(root *node, action func(int, int)) {
+	if root == nil {
+		return
+	}
+	m.forEach(root.left, action)
+	action(root.key, root.value)
+	m.forEach(root.right, action)
 }
 
 func (m *OrderedMap) Insert(key, value int) {
-	// need to implement
+	m.root = m.insertNode(m.root, key, value)
 }
 
 func (m *OrderedMap) Erase(key int) {
-	// need to implement
+	m.root = m.removeNode(m.root, key)
 }
 
 func (m *OrderedMap) Contains(key int) bool {
-	return false // need to implement
+	return m.contains(m.root, key)
 }
 
 func (m *OrderedMap) Size() int {
-	return 0 // need to implement
+	return m.len
 }
 
 func (m *OrderedMap) ForEach(action func(int, int)) {
-	// need to implement
+	if action != nil {
+		m.forEach(m.root, action)
+	}
 }
 
-func TestCircularQueue(t *testing.T) {
+func TestOrderedMap(t *testing.T) {
 	data := NewOrderedMap()
 	assert.Zero(t, data.Size())
 
