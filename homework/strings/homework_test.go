@@ -2,6 +2,7 @@ package main
 
 import (
 	"reflect"
+	"sync"
 	"testing"
 	"unsafe"
 
@@ -11,27 +12,66 @@ import (
 type COWBuffer struct {
 	data []byte
 	refs *int
-	// need to implement
+	mu   sync.Mutex
 }
 
 func NewCOWBuffer(data []byte) COWBuffer {
-	return COWBuffer{} // need to implement
+	refs := 1
+	return COWBuffer{
+		data: data,
+		refs: &refs,
+	}
 }
 
 func (b *COWBuffer) Clone() COWBuffer {
-	return COWBuffer{} // need to implement
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	if b.refs != nil {
+		*b.refs++
+	}
+	return COWBuffer{
+		data: b.data,
+		refs: b.refs,
+	}
 }
 
 func (b *COWBuffer) Close() {
-	// need to implement
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	if b.refs != nil {
+		*b.refs--
+		if *b.refs == 0 {
+			b.data = nil
+			b.refs = nil
+		}
+	}
 }
 
 func (b *COWBuffer) Update(index int, value byte) bool {
-	return false // need to implement
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	if index < 0 || index >= len(b.data) {
+		return false
+	}
+	if b.refs != nil && *b.refs > 1 {
+		*b.refs--
+		newData := append([]byte(nil), b.data...)
+		b.data = newData
+		refs := 1
+		b.refs = &refs
+	}
+	b.data[index] = value
+	return true
 }
 
 func (b *COWBuffer) String() string {
-	return "" // need to implement
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	return unsafe.String(unsafe.SliceData(b.data), len(b.data))
 }
 
 func TestCOWBuffer(t *testing.T) {
