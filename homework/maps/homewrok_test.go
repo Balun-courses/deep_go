@@ -9,32 +9,111 @@ import (
 
 // go test -v homework_test.go
 
+type node struct {
+	key   int
+	value int
+	left  *node
+	right *node
+}
+
 type OrderedMap struct {
-	// need to implement
+	root *node
+	size int
 }
 
 func NewOrderedMap() OrderedMap {
-	return OrderedMap{} // need to implement
+	return OrderedMap{}
 }
 
 func (m *OrderedMap) Insert(key, value int) {
-	// need to implement
+	m.root = m.insertRecursive(m.root, key, value)
+}
+
+func (m *OrderedMap) insertRecursive(n *node, key, value int) *node {
+	if n == nil {
+		m.size++
+		return &node{key: key, value: value}
+	}
+
+	if key < n.key {
+		n.left = m.insertRecursive(n.left, key, value)
+	} else if key > n.key {
+		n.right = m.insertRecursive(n.right, key, value)
+	} else {
+		n.value = value
+	}
+	return n
 }
 
 func (m *OrderedMap) Erase(key int) {
-	// need to implement
+	m.root = m.eraseRecursive(m.root, key)
+}
+
+func (m *OrderedMap) eraseRecursive(n *node, key int) *node {
+	if n == nil {
+		return nil
+	}
+
+	if key < n.key {
+		n.left = m.eraseRecursive(n.left, key)
+	} else if key > n.key {
+		n.right = m.eraseRecursive(n.right, key)
+	} else {
+		m.size--
+
+		if n.left == nil {
+			return n.right
+		} else if n.right == nil {
+			return n.left
+		}
+
+		minNode := m.findMin(n.right)
+		n.key = minNode.key
+		n.value = minNode.value
+		n.right = m.eraseRecursive(n.right, minNode.key)
+	}
+	return n
+}
+
+func (m *OrderedMap) findMin(n *node) *node {
+	current := n
+	for current.left != nil {
+		current = current.left
+	}
+	return current
 }
 
 func (m *OrderedMap) Contains(key int) bool {
-	return false // need to implement
+	return m.containsRecursive(m.root, key)
+}
+
+func (m *OrderedMap) containsRecursive(n *node, key int) bool {
+	if n == nil {
+		return false
+	}
+
+	if key < n.key {
+		return m.containsRecursive(n.left, key)
+	} else if key > n.key {
+		return m.containsRecursive(n.right, key)
+	}
+	return true
 }
 
 func (m *OrderedMap) Size() int {
-	return 0 // need to implement
+	return m.size
 }
 
 func (m *OrderedMap) ForEach(action func(int, int)) {
-	// need to implement
+	m.inOrderTraversal(m.root, action)
+}
+
+func (m *OrderedMap) inOrderTraversal(n *node, action func(int, int)) {
+	if n != nil {
+		m.inOrderTraversal(n.left, action)
+		action(n.key, n.value)
+		m.inOrderTraversal(n.right, action)
+	}
 }
 
 func TestCircularQueue(t *testing.T) {
