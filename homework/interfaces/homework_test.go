@@ -1,9 +1,10 @@
 package main
 
 import (
-	"testing"
-
+	"errors"
 	"github.com/stretchr/testify/assert"
+	"sync"
+	"testing"
 )
 
 // go test -v homework_test.go
@@ -17,22 +18,55 @@ type MessageService struct {
 	NotEmptyStruct bool
 }
 
+type constructorFunc func() interface{}
+
 type Container struct {
-	// need to implement
+	mu           sync.RWMutex
+	constructors map[string]constructorFunc
 }
 
 func NewContainer() *Container {
-	// need to implement
-	return &Container{}
+	return &Container{
+		constructors: make(map[string]constructorFunc),
+	}
 }
 
 func (c *Container) RegisterType(name string, constructor interface{}) {
-	// need to implement
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if fn, ok := constructor.(func() interface{}); ok {
+		c.constructors[name] = fn
+	}
 }
 
 func (c *Container) Resolve(name string) (interface{}, error) {
-	// need to implement
-	return nil, nil
+	c.mu.RLock()
+	constructor, ok := c.constructors[name]
+	c.mu.RUnlock()
+
+	if !ok {
+		return nil, errors.New("type not registered: " + name)
+	}
+	return constructor(), nil
+}
+
+func (c *Container) RegisterSingletonType(name string, constructor interface{}) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if fn, ok := constructor.(func() interface{}); ok {
+		var (
+			once     sync.Once
+			instance interface{}
+		)
+		c.constructors[name] = func() interface{} {
+			once.Do(func() {
+				instance = fn()
+			})
+			return instance
+		}
+	}
 }
 
 func TestDIContainer(t *testing.T) {
