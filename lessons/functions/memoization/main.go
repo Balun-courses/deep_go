@@ -16,7 +16,8 @@ func FibonacciWithMemoization(number int) int {
 			return cache[n]
 		}
 
-		if number <= 2 {
+		if n <= 2 {
+			cache[n] = 1
 			return 1
 		} else {
 			cache[n] = impl(n-1) + impl(n-2)
