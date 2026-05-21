@@ -8,6 +8,8 @@ import (
 )
 
 // go test -v homework_test.go
+
+// Реверс массива байтов через указатель
 func ToLittleEndian[T uint16 | uint32 | uint64](number T) T {
 	var littleEndian [8]int8 // т.к. размер должен быть константой, то приходится выделять всегда по-максимуму
 
@@ -21,6 +23,7 @@ func ToLittleEndian[T uint16 | uint32 | uint64](number T) T {
 	return *(*T)(unsafe.Pointer(&littleEndian))
 }
 
+// Реверс через битовые сдвиги (предпочтительный вариант)
 func ToLittleEndianByBits[T uint16 | uint32 | uint64](number T) T {
 	var length = int(unsafe.Sizeof(number))
 	var result T
