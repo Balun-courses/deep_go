@@ -9,7 +9,12 @@ import (
 // go test -v homework_test.go
 
 func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+	byte1 := (number & 0x000000FF) << 24
+	byte2 := (number & 0x0000FF00) << 8
+	byte3 := (number & 0x00FF0000) >> 8
+	byte4 := (number & 0xFF000000) >> 24
+
+	return byte1 | byte2 | byte3 | byte4
 }
 
 func TestСonversion(t *testing.T) {
