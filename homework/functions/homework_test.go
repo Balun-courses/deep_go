@@ -1,25 +1,41 @@
 package main
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func Map(data []int, action func(int) int) []int {
-	// need to implement
-	return nil
+func Map[T any](data []T, action func(T) T) []T {
+	for index, value := range data {
+		data[index] = action(value)
+	}
+
+	return data
 }
 
-func Filter(data []int, action func(int) bool) []int {
-	// need to implement
-	return nil
+// Функция работает корректно, но тесты почему-то падают на DeepEqual.
+// И сами значения, и len, и cap одинаковые
+func Filter[T any](data []T, action func(T) bool) []T {
+	result := make([]T, 0)
+
+	for _, value := range data {
+		if action(value) {
+			result = append(result, value)
+		}
+	}
+
+	return result
 }
 
-func Reduce(data []int, initial int, action func(int, int) int) int {
-	// need to implement
-	return 0
+func Reduce[T any](data []T, initial T, action func(T, T) T) T {
+	for _, value := range data {
+		initial = action(initial, value)
+	}
+
+	return initial
 }
 
 func TestMap(t *testing.T) {
@@ -59,6 +75,7 @@ func TestMap(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			result := Map(test.data, test.action)
+			fmt.Println(test.result, result)
 			assert.True(t, reflect.DeepEqual(test.result, result))
 		})
 	}

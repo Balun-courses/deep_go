@@ -2,6 +2,8 @@ package main
 
 import (
 	"reflect"
+	"runtime"
+	"slices"
 	"testing"
 	"unsafe"
 
@@ -11,27 +13,76 @@ import (
 type COWBuffer struct {
 	data []byte
 	refs *int
-	// need to implement
 }
 
 func NewCOWBuffer(data []byte) COWBuffer {
-	return COWBuffer{} // need to implement
+	refs := 1
+
+	buf := COWBuffer{
+		data: data,
+		refs: &refs,
+	}
+
+	runtime.SetFinalizer(&buf, (*COWBuffer).Close)
+
+	return buf
 }
 
 func (b *COWBuffer) Clone() COWBuffer {
-	return COWBuffer{} // need to implement
+	buf := COWBuffer{
+		data: b.data,
+		refs: b.refs,
+	}
+
+	*buf.refs += 1
+
+	return buf
 }
 
 func (b *COWBuffer) Close() {
-	// need to implement
+	if b == nil || *b.refs == 0 {
+		return
+	}
+
+	*b.refs -= 1
+	b.data = nil
+	runtime.SetFinalizer(b, nil)
 }
 
 func (b *COWBuffer) Update(index int, value byte) bool {
-	return false // need to implement
+	if index >= len(b.data) || index < 0 {
+		return false
+	}
+
+	// На буфер никто не ссылается - не копируем
+	if b.refs == nil || *b.refs == 1 {
+		b.data[index] = value
+
+		*b.refs = +1
+		return true
+	}
+
+	// На буффер ссылаются
+	// Уменьшаем старый счетчик
+	*b.refs -= 1
+
+	refs := 1
+	// Делаем новую копию с refs=1
+	clone := COWBuffer{
+		data: slices.Clone(b.data),
+		refs: &refs,
+	}
+	clone.data[index] = value
+
+	b.data = clone.data
+	b.refs = clone.refs
+
+	return true
 }
 
 func (b *COWBuffer) String() string {
-	return "" // need to implement
+	data := unsafe.SliceData(b.data)
+	return unsafe.String(data, len(b.data))
 }
 
 func TestCOWBuffer(t *testing.T) {
