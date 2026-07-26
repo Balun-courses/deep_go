@@ -10,36 +10,59 @@ import (
 // go test -v homework_test.go
 
 type CircularQueue struct {
-	values []int
-	// need to implement
+	values   []int
+	capacity int
+	head     int
+	tail     int
+	size     int
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{} // need to implement
+	return CircularQueue{make([]int, size), size, 0, 0, 0} // need to implement
 }
 
 func (q *CircularQueue) Push(value int) bool {
-	return false // need to implement
+	if q.size == q.capacity {
+		return false
+	}
+
+	q.values[q.tail] = value
+	q.tail = (q.tail + 1) % q.capacity
+	q.size++
+	return true
 }
 
 func (q *CircularQueue) Pop() bool {
-	return false // need to implement
+	if q.size == 0 {
+		return false
+	}
+	q.head = (q.head + 1) % q.capacity
+	q.size--
+	return true
 }
 
 func (q *CircularQueue) Front() int {
-	return -1 // need to implement
+	if q.size == 0 {
+		return -1
+	}
+	return q.values[q.head]
 }
 
 func (q *CircularQueue) Back() int {
-	return -1 // need to implement
+	if q.size == 0 {
+		return -1
+	}
+	index := (q.tail - 1 + q.capacity) % q.capacity
+	return q.values[index]
 }
 
 func (q *CircularQueue) Empty() bool {
-	return false // need to implement
+	return q.size == 0
 }
 
 func (q *CircularQueue) Full() bool {
-	return false // need to implement
+	return q.size == q.capacity
+
 }
 
 func TestCircularQueue(t *testing.T) {
