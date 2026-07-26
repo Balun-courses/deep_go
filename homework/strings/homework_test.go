@@ -15,23 +15,61 @@ type COWBuffer struct {
 }
 
 func NewCOWBuffer(data []byte) COWBuffer {
-	return COWBuffer{} // need to implement
+	refs := 1
+
+	return COWBuffer{data: data, refs: &refs}
 }
 
 func (b *COWBuffer) Clone() COWBuffer {
-	return COWBuffer{} // need to implement
+	(*b.refs)++
+	return COWBuffer{data: b.data, refs: b.refs}
 }
 
 func (b *COWBuffer) Close() {
-	// need to implement
+	if b.refs == nil {
+		return
+	}
+	(*b.refs)--
+	b.data = nil
+	b.refs = nil
 }
 
 func (b *COWBuffer) Update(index int, value byte) bool {
-	return false // need to implement
+	if index < 0 || index >= len(b.data) {
+		return false
+	}
+
+	// данные только наши
+	if *b.refs == 1 {
+		b.data[index] = value
+		return true
+	}
+
+	// данные разделяются, делаем копию
+	newData := make([]byte, len(b.data))
+	copy(newData, b.data)
+
+	// убираем себя из старого буфера
+	(*b.refs)--
+
+	// создаем новый счетчик
+	refs := 1
+
+	// переключаемся на свою копию
+	b.data = newData
+	b.refs = &refs
+
+	// изменяем копию
+	b.data[index] = value
+
+	return true
 }
 
 func (b *COWBuffer) String() string {
-	return "" // need to implement
+	if len(b.data) == 0 {
+		return ""
+	}
+	return unsafe.String(unsafe.SliceData(b.data), len(b.data))
 }
 
 func TestCOWBuffer(t *testing.T) {
