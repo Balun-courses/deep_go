@@ -52,12 +52,7 @@ func (b *COWBuffer) Update(index int, value byte) bool {
 	// убираем себя из старого буфера
 	(*b.refs)--
 
-	// создаем новый счетчик
-	refs := 1
-
-	// переключаемся на свою копию
-	b.data = newData
-	b.refs = &refs
+	*b = NewCOWBuffer(newData)
 
 	// изменяем копию
 	b.data[index] = value
