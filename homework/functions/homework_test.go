@@ -12,6 +12,10 @@ func Map[T any, R any](data []T, action func(T) R) []R {
 		return nil
 	}
 
+	if len(data) == 0 {
+		return []R{}
+	}
+
 	result := make([]R, len(data))
 
 	for i, value := range data {
@@ -24,6 +28,10 @@ func Map[T any, R any](data []T, action func(T) R) []R {
 func Filter[T any](data []T, action func(T) bool) []T {
 	if data == nil {
 		return nil
+	}
+
+	if len(data) == 0 {
+		return []T{}
 	}
 
 	result := make([]T, 0, len(data))
@@ -39,6 +47,10 @@ func Filter[T any](data []T, action func(T) bool) []T {
 
 func Reduce[T any, R any](data []T, initial R, action func(R, T) R) R {
 	if data == nil {
+		return initial
+	}
+
+	if len(data) == 0 {
 		return initial
 	}
 
