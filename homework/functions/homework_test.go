@@ -7,19 +7,58 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Map(data []int, action func(int) int) []int {
-	// need to implement
-	return nil
+func Map[T any, R any](data []T, action func(T) R) []R {
+	if data == nil {
+		return nil
+	}
+
+	if len(data) == 0 {
+		return []R{}
+	}
+
+	result := make([]R, len(data))
+
+	for i, value := range data {
+		result[i] = action(value)
+	}
+
+	return result
 }
 
-func Filter(data []int, action func(int) bool) []int {
-	// need to implement
-	return nil
+func Filter[T any](data []T, action func(T) bool) []T {
+	if data == nil {
+		return nil
+	}
+
+	if len(data) == 0 {
+		return []T{}
+	}
+
+	result := make([]T, 0, len(data))
+
+	for _, value := range data {
+		if action(value) {
+			result = append(result, value)
+		}
+	}
+
+	return result
 }
 
-func Reduce(data []int, initial int, action func(int, int) int) int {
-	// need to implement
-	return 0
+func Reduce[T any, R any](data []T, initial R, action func(R, T) R) R {
+	if data == nil {
+		return initial
+	}
+
+	if len(data) == 0 {
+		return initial
+	}
+
+	for _, value := range data {
+		initial = action(initial, value)
+	}
+
+	return initial
 }
 
 func TestMap(t *testing.T) {
