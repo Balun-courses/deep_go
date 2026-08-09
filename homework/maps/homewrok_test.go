@@ -1,6 +1,8 @@
 package main
 
 import (
+	"cmp"
+	"golang_course/homework/maps/bst"
 	"reflect"
 	"testing"
 
@@ -9,36 +11,52 @@ import (
 
 // go test -v homework_test.go
 
-type OrderedMap struct {
-	// need to implement
+type OrderedMap[T cmp.Ordered, V any] struct {
+	root *bst.Node[T, V]
+	size int
 }
 
-func NewOrderedMap() OrderedMap {
-	return OrderedMap{} // need to implement
+func NewOrderedMap[T cmp.Ordered, V any]() OrderedMap[T, V] {
+	return OrderedMap[T, V]{}
 }
 
-func (m *OrderedMap) Insert(key, value int) {
-	// need to implement
+func (m *OrderedMap[T, V]) Insert(key T, value V) {
+	if m.root == nil {
+		m.root = bst.NewNode(key, value, nil, nil)
+		m.size++
+		return
+	}
+
+	if !m.root.Contains(key) {
+		m.size++
+	}
+
+	m.root.Insert(key, value)
 }
 
-func (m *OrderedMap) Erase(key int) {
-	// need to implement
+func (m *OrderedMap[T, V]) Erase(key T) {
+	if !m.root.Contains(key) {
+		return
+	}
+
+	m.root = m.root.Erase(key)
+	m.size--
 }
 
-func (m *OrderedMap) Contains(key int) bool {
-	return false // need to implement
+func (m *OrderedMap[T, V]) Contains(key T) bool {
+	return m.root.Contains(key)
 }
 
-func (m *OrderedMap) Size() int {
-	return 0 // need to implement
+func (m *OrderedMap[T, V]) Size() int {
+	return m.size
 }
 
-func (m *OrderedMap) ForEach(action func(int, int)) {
-	// need to implement
+func (m *OrderedMap[T, V]) ForEach(action func(T, V)) {
+	m.root.ForEach(action)
 }
 
 func TestCircularQueue(t *testing.T) {
-	data := NewOrderedMap()
+	data := NewOrderedMap[int, int]()
 	assert.Zero(t, data.Size())
 
 	data.Insert(10, 10)
