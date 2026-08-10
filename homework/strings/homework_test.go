@@ -1,7 +1,10 @@
 package main
 
 import (
+	"errors"
 	"reflect"
+	"runtime"
+	"sync"
 	"testing"
 	"unsafe"
 
@@ -9,29 +12,88 @@ import (
 )
 
 type COWBuffer struct {
-	data []byte
-	refs *int
-	// need to implement
+	data   []byte
+	refs   *int
+	mu     *sync.RWMutex
+	closed bool
 }
 
-func NewCOWBuffer(data []byte) COWBuffer {
-	return COWBuffer{} // need to implement
+func COWFinalizerSetup(cb *COWBuffer) {
+	runtime.SetFinalizer(cb, func(c *COWBuffer) {
+		if !c.closed {
+			c.Close()
+		}
+	})
 }
 
-func (b *COWBuffer) Clone() COWBuffer {
-	return COWBuffer{} // need to implement
+func NewCOWBuffer(data []byte) *COWBuffer {
+	cb := &COWBuffer{data: data, refs: new(1), mu: new(sync.RWMutex)}
+
+	COWFinalizerSetup(cb)
+
+	return cb
+}
+
+func (b *COWBuffer) Clone() (*COWBuffer, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	if b.closed {
+		return nil, errors.New("buffer closed")
+	}
+
+	*b.refs++
+	cb := &COWBuffer{data: b.data, refs: b.refs, mu: b.mu}
+	COWFinalizerSetup(cb)
+
+	return cb, nil
 }
 
 func (b *COWBuffer) Close() {
-	// need to implement
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	if b.closed {
+		return
+	}
+
+	b.closed = true
+	b.data = nil
+	if *b.refs > 0 {
+		*b.refs--
+	}
 }
 
 func (b *COWBuffer) Update(index int, value byte) bool {
-	return false // need to implement
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	if b.data == nil || index < 0 || index >= len(b.data) {
+		return false
+	}
+
+	if *b.refs <= 1 {
+		b.data[index] = value
+		return true
+	}
+
+	*b.refs--
+
+	newData := make([]byte, len(b.data))
+	copy(newData, b.data)
+
+	b.data = newData
+	b.refs = new(1)
+	b.mu = new(sync.RWMutex)
+
+	b.data[index] = value
+	return true
 }
 
 func (b *COWBuffer) String() string {
-	return "" // need to implement
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	return unsafe.String(unsafe.SliceData(b.data), len(b.data))
 }
 
 func TestCOWBuffer(t *testing.T) {
@@ -39,8 +101,10 @@ func TestCOWBuffer(t *testing.T) {
 	buffer := NewCOWBuffer(data)
 	defer buffer.Close()
 
-	copy1 := buffer.Clone()
-	copy2 := buffer.Clone()
+	copy1, err := buffer.Clone()
+	assert.NoError(t, err)
+	copy2, err := buffer.Clone()
+	assert.NoError(t, err)
 
 	assert.Equal(t, unsafe.SliceData(data), unsafe.SliceData(buffer.data))
 	assert.Equal(t, unsafe.SliceData(buffer.data), unsafe.SliceData(copy1.data))
@@ -62,6 +126,8 @@ func TestCOWBuffer(t *testing.T) {
 	assert.Equal(t, unsafe.SliceData(copy1.data), unsafe.SliceData(copy2.data))
 
 	copy1.Close()
+	_, err = copy1.Clone()
+	assert.Error(t, err)
 
 	previous := copy2.data
 	copy2.Update(0, 'f')
@@ -71,4 +137,63 @@ func TestCOWBuffer(t *testing.T) {
 	assert.Equal(t, unsafe.SliceData(previous), unsafe.SliceData(current))
 
 	copy2.Close()
+}
+
+func TestCOWBufferFinalizer(t *testing.T) {
+	buffer := NewCOWBuffer([]byte{'a', 'b', 'c', 'd'})
+	defer buffer.Close()
+
+	dropped, err := buffer.Clone()
+	assert.NoError(t, err)
+	assert.NotNil(t, dropped)
+	assert.Equal(t, 2, *buffer.refs)
+
+	dropped = nil
+
+	for i := 0; i < 3; i++ {
+		buffer.mu.Lock()
+		refs := *buffer.refs
+		buffer.mu.Unlock()
+		if refs == 1 {
+			break
+		}
+		runtime.GC()
+		runtime.Gosched()
+	}
+
+	buffer.mu.Lock()
+	assert.Equal(t, 1, *buffer.refs)
+	buffer.mu.Unlock()
+
+	previous := buffer.data
+	assert.True(t, buffer.Update(0, 'g'))
+	assert.Equal(t, unsafe.SliceData(previous), unsafe.SliceData(buffer.data))
+}
+
+func TestCOWBufferConcurrent(t *testing.T) {
+	buffer := NewCOWBuffer([]byte{'a', 'b', 'c', 'd'})
+	defer buffer.Close()
+
+	const workers = 16
+	var wg sync.WaitGroup
+	for i := range workers {
+		wg.Add(1)
+		go func(n byte) {
+			defer wg.Done()
+			cl, err := buffer.Clone()
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			defer cl.Close()
+			for range 100 {
+				if !cl.Update(0, n) {
+					t.Error("update failed")
+					return
+				}
+				_ = cl.String()
+			}
+		}(byte(i))
+	}
+	wg.Wait()
 }
