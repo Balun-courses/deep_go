@@ -19,20 +19,17 @@ func (n *Node[T, V]) Insert(key T, value V) {
 		return
 	}
 
+	child := &n.left
 	if key > n.key {
-		if n.right != nil {
-			n.right.Insert(key, value)
-		} else {
-			n.right = NewNode(key, value, nil, nil)
-		}
+		child = &n.right
+	}
+
+	if *child == nil {
+		*child = NewNode(key, value, nil, nil)
 		return
 	}
 
-	if n.left != nil {
-		n.left.Insert(key, value)
-	} else {
-		n.left = NewNode(key, value, nil, nil)
-	}
+	(*child).Insert(key, value)
 }
 
 func (n *Node[T, V]) Value() V {
