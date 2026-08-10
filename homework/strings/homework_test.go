@@ -14,7 +14,7 @@ import (
 type COWBuffer struct {
 	data   []byte
 	refs   *int
-	mu     *sync.Mutex
+	mu     *sync.RWMutex
 	closed bool
 }
 
@@ -27,7 +27,7 @@ func COWFinalizerSetup(cb *COWBuffer) {
 }
 
 func NewCOWBuffer(data []byte) *COWBuffer {
-	cb := &COWBuffer{data: data, refs: new(1), mu: new(sync.Mutex)}
+	cb := &COWBuffer{data: data, refs: new(1), mu: new(sync.RWMutex)}
 
 	COWFinalizerSetup(cb)
 
@@ -84,15 +84,15 @@ func (b *COWBuffer) Update(index int, value byte) bool {
 
 	b.data = newData
 	b.refs = new(1)
-	b.mu = new(sync.Mutex)
+	b.mu = new(sync.RWMutex)
 
 	b.data[index] = value
 	return true
 }
 
 func (b *COWBuffer) String() string {
-	b.mu.Lock()
-	defer b.mu.Unlock()
+	b.mu.RLock()
+	defer b.mu.RUnlock()
 	return unsafe.String(unsafe.SliceData(b.data), len(b.data))
 }
 
