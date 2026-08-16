@@ -1,12 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 // go test -v homework_test.go
+
+type RealConstructor = func() any
 
 type UserService struct {
 	// not need to implement
@@ -19,20 +22,31 @@ type MessageService struct {
 
 type Container struct {
 	// need to implement
+	ifs map[string]any
 }
 
 func NewContainer() *Container {
 	// need to implement
-	return &Container{}
+	return &Container{make(map[string]any)}
 }
 
 func (c *Container) RegisterType(name string, constructor interface{}) {
-	// need to implement
+	if c.ifs == nil {
+		c.ifs = make(map[string]any)
+	}
+
+	c.ifs[name] = constructor
 }
 
 func (c *Container) Resolve(name string) (interface{}, error) {
-	// need to implement
-	return nil, nil
+	if constructor, ok := c.ifs[name]; ok {
+		if realConstructor, ok := constructor.(RealConstructor); ok {
+			return realConstructor(), nil
+		}
+		return nil, fmt.Errorf("%s constructor has invalid prototype", name)
+	}
+
+	return nil, fmt.Errorf("name not resolved: %s", name)
 }
 
 func TestDIContainer(t *testing.T) {
