@@ -8,8 +8,13 @@ import (
 
 // go test -v homework_test.go
 
-func ToLittleEndian(number uint32) uint32 {
-	return 0 // need to implement
+func ToLittleEndian2[T uint16 | uint32 | uint64](number T) T {
+	var reverse T
+	for i := 0; i < 32; i += 8  {
+		bytee := (number >> i) & 255
+		reverse = reverse << 8 | bytee
+	}
+	return reverse
 }
 
 func TestСonversion(t *testing.T) {
