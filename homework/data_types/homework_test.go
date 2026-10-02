@@ -9,7 +9,7 @@ import (
 
 // go test -v homework_test.go
 
-func ToLittleEndian2[T uint16 | uint32 | uint64](number T) T {
+func ToLittleEndian[T uint16 | uint32 | uint64](number T) T {
 	var reverse T
 	size := int(unsafe.Sizeof(number) * 8)
 	for i := 0; i < size; i += 8  {
