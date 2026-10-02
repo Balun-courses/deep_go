@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -10,7 +11,8 @@ import (
 
 func ToLittleEndian2[T uint16 | uint32 | uint64](number T) T {
 	var reverse T
-	for i := 0; i < 32; i += 8  {
+	size := int(unsafe.Sizeof(number) * 8)
+	for i := 0; i < size; i += 8  {
 		bytee := (number >> i) & 255
 		reverse = reverse << 8 | bytee
 	}
