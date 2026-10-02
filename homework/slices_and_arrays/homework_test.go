@@ -11,35 +11,55 @@ import (
 
 type CircularQueue struct {
 	values []int
-	// need to implement
+	head   int
+	count  int
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{} // need to implement
+	if size < 0 {
+		size = 0
+	}
+	return CircularQueue{values: make([]int, size)}
 }
 
 func (q *CircularQueue) Push(value int) bool {
-	return false // need to implement
+	if q.Full() {
+		return false
+	}
+	q.values[(q.head+q.count)%len(q.values)] = value
+	q.count++
+	return true
 }
 
 func (q *CircularQueue) Pop() bool {
-	return false // need to implement
+	if q.Empty() {
+		return false
+	}
+	q.head = (q.head + 1) % len(q.values)
+	q.count--
+	return true
 }
 
 func (q *CircularQueue) Front() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+	return q.values[q.head]
 }
 
 func (q *CircularQueue) Back() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+	return q.values[(q.head+q.count-1)%len(q.values)]
 }
 
 func (q *CircularQueue) Empty() bool {
-	return false // need to implement
+	return q.count == 0
 }
 
 func (q *CircularQueue) Full() bool {
-	return false // need to implement
+	return q.count == len(q.values)
 }
 
 func TestCircularQueue(t *testing.T) {
@@ -83,4 +103,36 @@ func TestCircularQueue(t *testing.T) {
 
 	assert.True(t, queue.Empty())
 	assert.False(t, queue.Full())
+}
+
+func TestCircularQueueSizeOne(t *testing.T) {
+	queue := NewCircularQueue(1)
+
+	assert.True(t, queue.Empty())
+	assert.True(t, queue.Push(42))
+	assert.True(t, queue.Full())
+	assert.False(t, queue.Push(43))
+	assert.Equal(t, 42, queue.Front())
+	assert.Equal(t, 42, queue.Back())
+
+	assert.True(t, queue.Pop())
+	assert.True(t, queue.Empty())
+	assert.False(t, queue.Pop())
+	assert.Equal(t, -1, queue.Front())
+	assert.Equal(t, -1, queue.Back())
+}
+
+func TestCircularQueueMultipleWrapAround(t *testing.T) {
+	queue := NewCircularQueue(3)
+
+	for i := 1; i <= 10; i++ {
+		assert.True(t, queue.Push(i))
+		assert.True(t, queue.Push(i+100))
+		assert.Equal(t, i, queue.Front())
+		assert.Equal(t, i+100, queue.Back())
+		assert.True(t, queue.Pop())
+		assert.True(t, queue.Pop())
+	}
+
+	assert.True(t, queue.Empty())
 }
