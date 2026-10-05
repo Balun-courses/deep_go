@@ -17,7 +17,7 @@ type CircularQueue struct {
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	slice := make([]int, 3)
+	slice := make([]int, size)
 	return CircularQueue{slice, -1, -1}
 }
 
