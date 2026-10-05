@@ -8,20 +8,23 @@ import (
 )
 
 // go test -v homework_test.go
-var NILValue = 0
 
-type CircularQueue struct {
-	values []int
+type Integer interface {
+    int | int8 | int16 | int32 | int64
+}
+
+type CircularQueue[T Integer] struct {
+	values []T
 	front  int
 	back   int
 }
 
-func NewCircularQueue(size int) CircularQueue {
-	slice := make([]int, size)
-	return CircularQueue{slice, -1, -1}
+func NewCircularQueue[T Integer](size int) CircularQueue[T] {
+	slice := make([]T, size)
+	return CircularQueue[T]{slice, -1, -1}
 }
 
-func (q *CircularQueue) Push(value int) bool {
+func (q *CircularQueue[T]) Push(value T) bool {
 	switch {
 	case q.Empty():
 		q.back = 0
@@ -40,10 +43,11 @@ func (q *CircularQueue) Push(value int) bool {
 	return true
 }
 
-func (q *CircularQueue) Pop() bool {
+func (q *CircularQueue[T]) Pop() bool {
 	if q.Empty() {
 		return false
 	}
+	var NILValue T
 	q.values[q.front] = NILValue
 
 	switch {
@@ -59,28 +63,28 @@ func (q *CircularQueue) Pop() bool {
 	return true
 }
 
-func (q *CircularQueue) Front() int {
+func (q *CircularQueue[T]) Front() T {
 	if q.front == -1 {
-		return q.front
+		return -1
 	}
 	return q.values[q.front]
 }
 
-func (q *CircularQueue) Back() int {
+func (q *CircularQueue[T]) Back() T {
 	if q.back == -1 {
-		return q.back
+		return -1
 	}
 	return q.values[q.back]
 }
 
-func (q *CircularQueue) Empty() bool {
+func (q *CircularQueue[T]) Empty() bool {
 	if q.front == -1 && q.back == -1 {
 		return true
 	}
 	return false
 }
 
-func (q *CircularQueue) Full() bool {
+func (q *CircularQueue[T]) Full() bool {
 	if (q.front == 0 && q.back == len(q.values)-1) ||
 		(q.back+1 == q.front) {
 		return true
@@ -90,7 +94,7 @@ func (q *CircularQueue) Full() bool {
 
 func TestCircularQueue(t *testing.T) {
 	const queueSize = 3
-	queue := NewCircularQueue(queueSize)
+	queue := NewCircularQueue[int](queueSize)
 
 	assert.True(t, queue.Empty())
 	assert.False(t, queue.Full())
