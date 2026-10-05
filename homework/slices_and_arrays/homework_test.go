@@ -8,38 +8,84 @@ import (
 )
 
 // go test -v homework_test.go
+var NILValue = 0
 
 type CircularQueue struct {
 	values []int
-	// need to implement
+	front  int
+	back   int
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{} // need to implement
+	slice := make([]int, 3)
+	return CircularQueue{slice, -1, -1}
 }
 
 func (q *CircularQueue) Push(value int) bool {
-	return false // need to implement
+	switch {
+	case q.Empty():
+		q.back = 0
+		q.front = 0
+		q.values[0] = value
+		return true
+	case q.Full():
+		return false
+	case q.back+1 == len(q.values):
+		q.back = (q.back + 1) % len(q.values)
+	default:
+		q.back += 1
+	}
+
+	q.values[q.back] = value
+	return true
 }
 
 func (q *CircularQueue) Pop() bool {
-	return false // need to implement
+	if q.Empty() {
+		return false
+	}
+	q.values[q.front] = NILValue
+
+	switch {
+	case q.back == q.front:
+		q.back = -1
+		q.front = -1
+	case q.front+1 == len(q.values):
+		q.front = (q.front + 1) % len(q.values)
+	default:
+		q.front += 1
+	}
+
+	return true
 }
 
 func (q *CircularQueue) Front() int {
-	return -1 // need to implement
+	if q.front == -1 {
+		return q.front
+	}
+	return q.values[q.front]
 }
 
 func (q *CircularQueue) Back() int {
-	return -1 // need to implement
+	if q.back == -1 {
+		return q.back
+	}
+	return q.values[q.back]
 }
 
 func (q *CircularQueue) Empty() bool {
-	return false // need to implement
+	if q.front == -1 && q.back == -1 {
+		return true
+	}
+	return false
 }
 
 func (q *CircularQueue) Full() bool {
-	return false // need to implement
+	if (q.front == 0 && q.back == len(q.values)-1) ||
+		(q.back+1 == q.front) {
+		return true
+	}
+	return false
 }
 
 func TestCircularQueue(t *testing.T) {
