@@ -8,30 +8,68 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// COWBuffer - copy-on-write буфер.
+// data совместно используется всеми копиями буфера,
+// refs - разделяемый счетчик ссылок на данные,
+// nil в refs означает, что копия буфера закрыта (Close).
 type COWBuffer struct {
 	data []byte
 	refs *int
-	// need to implement
 }
 
+// NewCOWBuffer создает новый буфер с разделяемым счетчиком ссылок.
 func NewCOWBuffer(data []byte) COWBuffer {
-	return COWBuffer{} // need to implement
+	refs := 1
+	return COWBuffer{data: data, refs: &refs}
 }
 
+// Clone создает новую копию буфера: данные остаются общими,
+// счетчик ссылок увеличивается.
 func (b *COWBuffer) Clone() COWBuffer {
-	return COWBuffer{} // need to implement
+	if b.refs == nil {
+		// клонирование закрытого буфера - возвращаем независимый пустой буфер
+		return NewCOWBuffer(b.data)
+	}
+	*b.refs++
+	return COWBuffer{data: b.data, refs: b.refs}
 }
 
+// Close перестает использовать копию буфера.
+// Повторный вызов Close (и любой последующий) отрабатывает корректно -
+// это защита от программиста, забывшего, что Close уже был вызван
+// (например, явно и затем через defer).
 func (b *COWBuffer) Close() {
-	// need to implement
+	if b.refs == nil {
+		return
+	}
+	*b.refs--
+	b.data = nil
+	b.refs = nil
 }
 
+// Update изменяет байт по индексу index.
+// Если на данные ссылается кто-то еще (refs > 1), сначала создается
+// новая копия данных, и только затем производится изменение.
+// Если ссылок больше нет - данные изменяются на месте, без копирования.
 func (b *COWBuffer) Update(index int, value byte) bool {
-	return false // need to implement
+	if b.refs == nil || index < 0 || index >= len(b.data) {
+		return false
+	}
+	if *b.refs > 1 {
+		*b.refs-- // открепляемся от общего буфера
+		*b = NewCOWBuffer(append([]byte(nil), b.data...))
+	}
+	b.data[index] = value
+	return true
 }
 
+// String конвертирует буфер в строку без копирования
+// и дополнительного выделения памяти.
 func (b *COWBuffer) String() string {
-	return "" // need to implement
+	if len(b.data) == 0 {
+		return ""
+	}
+	return unsafe.String(unsafe.SliceData(b.data), len(b.data))
 }
 
 func TestCOWBuffer(t *testing.T) {
@@ -71,4 +109,74 @@ func TestCOWBuffer(t *testing.T) {
 	assert.Equal(t, unsafe.SliceData(previous), unsafe.SliceData(current))
 
 	copy2.Close()
+}
+
+// Множественный вызов Close() должен отрабатывать корректно:
+// например, программист вызвал Close() явно и еще раз через defer.
+func TestCOWBufferMultipleClose(t *testing.T) {
+	data := []byte{'x', 'y', 'z'}
+	buffer := NewCOWBuffer(data)
+	clone := buffer.Clone()
+	defer clone.Close()
+
+	buffer.Close()
+	buffer.Close() // повторный вызов Close - безопасен
+	buffer.Close()
+
+	// clone по-прежнему владеет данными
+	assert.True(t, clone.Update(2, 'w'))
+	assert.True(t, reflect.DeepEqual([]byte{'x', 'y', 'w'}, clone.data))
+
+	clone.Close()
+	clone.Close() // и еще раз после явного вызова
+}
+
+// Использование буфера после Close не должно приводить к панике.
+func TestCOWBufferUsageAfterClose(t *testing.T) {
+	buffer := NewCOWBuffer([]byte("abc"))
+	buffer.Close()
+
+	assert.False(t, buffer.Update(0, 'z'))
+	assert.Empty(t, buffer.String())
+}
+
+// Проверка границ индекса при Update.
+func TestCOWBufferUpdateBounds(t *testing.T) {
+	buffer := NewCOWBuffer([]byte("abc"))
+	defer buffer.Close()
+
+	assert.True(t, buffer.Update(2, 'C')) // последний валидный индекс
+	assert.False(t, buffer.Update(3, 'd')) // ровно за границей
+	assert.False(t, buffer.Update(-1, 'd'))
+
+	assert.Equal(t, "abC", buffer.String())
+}
+
+// После copy-on-write String() по-прежнему указывает на собственные
+// данные буфера (без копирования).
+func TestCOWBufferStringZeroCopyAfterUpdate(t *testing.T) {
+	buffer := NewCOWBuffer([]byte("hello"))
+	defer buffer.Close()
+
+	clone := buffer.Clone()
+	defer clone.Close()
+
+	assert.True(t, buffer.Update(0, 'H'))
+
+	assert.True(t, unsafe.StringData(buffer.String()) == unsafe.SliceData(buffer.data))
+	assert.Equal(t, "Hello", buffer.String())
+	assert.Equal(t, "hello", clone.String())
+}
+
+// Пустой буфер.
+func TestCOWBufferEmpty(t *testing.T) {
+	buffer := NewCOWBuffer(nil)
+	defer buffer.Close()
+
+	assert.Empty(t, buffer.String())
+	assert.False(t, buffer.Update(0, 'a'))
+
+	clone := buffer.Clone()
+	defer clone.Close()
+	assert.Empty(t, clone.String())
 }
