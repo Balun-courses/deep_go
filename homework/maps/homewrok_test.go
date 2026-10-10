@@ -9,32 +9,121 @@ import (
 
 // go test -v homework_test.go
 
+type node struct {
+	key, value  int
+	left, right *node
+}
+
 type OrderedMap struct {
-	// need to implement
+	root *node
+	size int
 }
 
 func NewOrderedMap() OrderedMap {
-	return OrderedMap{} // need to implement
+	return OrderedMap{}
 }
 
 func (m *OrderedMap) Insert(key, value int) {
-	// need to implement
+	inserted := false
+	m.root, inserted = insertNode(m.root, key, value)
+	if inserted {
+		m.size++
+	}
+}
+
+func insertNode(n *node, key, value int) (*node, bool) {
+	if n == nil {
+		return &node{key: key, value: value}, true
+	}
+
+	switch {
+	case key < n.key:
+		n.left, _ = insertNode(n.left, key, value)
+	case key > n.key:
+		n.right, _ = insertNode(n.right, key, value)
+	default:
+		n.value = value
+		return n, false
+	}
+
+	return n, true
 }
 
 func (m *OrderedMap) Erase(key int) {
-	// need to implement
+	removed := false
+	m.root, removed = eraseNode(m.root, key)
+	if removed {
+		m.size--
+	}
+}
+
+func eraseNode(n *node, key int) (*node, bool) {
+	if n == nil {
+		return nil, false
+	}
+
+	removed := false
+
+	switch {
+	case key < n.key:
+		n.left, removed = eraseNode(n.left, key)
+	case key > n.key:
+		n.right, removed = eraseNode(n.right, key)
+	default:
+		removed = true
+
+		if n.left == nil {
+			return n.right, true
+		}
+		if n.right == nil {
+			return n.left, true
+		}
+
+		successor := n.right
+		for successor.left != nil {
+			successor = successor.left
+		}
+
+		n.key = successor.key
+		n.value = successor.value
+		n.right, _ = eraseNode(n.right, successor.key)
+	}
+
+	return n, removed
 }
 
 func (m *OrderedMap) Contains(key int) bool {
-	return false // need to implement
+	n := m.root
+	for n != nil {
+		switch {
+		case key < n.key:
+			n = n.left
+		case key > n.key:
+			n = n.right
+		default:
+			return true
+		}
+	}
+
+	return false
 }
 
 func (m *OrderedMap) Size() int {
-	return 0 // need to implement
+	return m.size
 }
 
 func (m *OrderedMap) ForEach(action func(int, int)) {
-	// need to implement
+	forEach(m.root, action)
+}
+
+func forEach(n *node, action func(int, int)) {
+	if n == nil {
+		return
+	}
+
+	forEach(n.left, action)
+	action(n.key, n.value)
+	forEach(n.right, action)
 }
 
 func TestCircularQueue(t *testing.T) {
