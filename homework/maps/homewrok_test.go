@@ -9,32 +9,98 @@ import (
 
 // go test -v homework_test.go
 
+type Node struct{
+	key int
+	value int
+	left *Node
+	right *Node
+}
+
+func NewNode(key, value int) *Node {
+	return &Node{key: key, value: value}
+}
+
 type OrderedMap struct {
-	// need to implement
+	root *Node
+	size int
 }
 
 func NewOrderedMap() OrderedMap {
-	return OrderedMap{} // need to implement
+	return OrderedMap{}
 }
 
 func (m *OrderedMap) Insert(key, value int) {
-	// need to implement
+	link := m.findLink(key)
+	if *link != nil {
+		(*link).value = value
+		return
+	}
+
+	*link = NewNode(key, value)
+	m.size++
 }
 
 func (m *OrderedMap) Erase(key int) {
-	// need to implement
+	link := m.findLink(key)
+	if *link == nil {
+		return
+	}
+	node := *link
+
+	if node.left == nil {
+		*link = node.right
+	} else if node.right == nil {
+		*link = node.left
+	} else {
+		targetLink := &(*link).right
+		for (*targetLink).left != nil {
+			targetLink = &(*targetLink).left
+		}
+
+		node.key = (*targetLink).key
+		node.value = (*targetLink).value
+		*targetLink = (*targetLink).right
+	}
+	m.size--
+}
+
+func (m *OrderedMap) findLink(key int) **Node {
+	link := &m.root
+
+	for *link != nil {
+		switch {
+		case key > (*link).key:
+			link = &(*link).right
+		case key < (*link).key:
+			link = &(*link).left
+		default:
+			return link
+		}
+	}
+	return link
 }
 
 func (m *OrderedMap) Contains(key int) bool {
-	return false // need to implement
+	return *m.findLink(key) != nil
 }
 
 func (m *OrderedMap) Size() int {
-	return 0 // need to implement
+	return m.size
 }
 
 func (m *OrderedMap) ForEach(action func(int, int)) {
-	// need to implement
+	var walk func(*Node)
+
+	walk = func (node *Node)  {
+		if node == nil {
+			return
+		}
+		
+		walk(node.left)
+		action(node.key, node.value)
+		walk(node.right)
+	}
+	walk(m.root)
 }
 
 func TestCircularQueue(t *testing.T) {
